@@ -1,0 +1,26 @@
+[project]
+name = "CrossRename"
+version = "1.0.0"
+authors = [
+  { name="Emmanuel C. Jemeni", email="jemenichinonso11@gmail.com" }
+]
+description = ""
+readme = "PYPI_README.rst"
+requires-python = ">=3.6"
+license = {file = "LICENSE"}
+keywords = ["files", "rename", "linux", "windows", "transferring"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Jemeni11/CrossRename"
+"Bug Tracker" = "https://github.com/Jemeni11/CrossRename/issues"
+
+[build-system]
+# These are the assumed default build requirements from pip:
+# https://pip.pypa.io/en/stable/reference/pip/#pep-517-and-518-support
+requires = ["setuptools>=43.0.0", "wheel"]
