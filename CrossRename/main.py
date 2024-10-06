@@ -1,31 +1,94 @@
-import argparse
-import sys
 import os
+import sys
+import re
+from pathlib import Path
+import argparse
+import logging
 
 __version__ = "1.0.0"
 
 
-def file_search(current_directory: str) -> list:
-    files_path_list = []
+def get_extension(filename: str) -> str:
+    """Extracts the extension from a
+    filename. Returns an empty string if
+    no extension is found.
+    """
+    # Handle special cases like .tar.gz, .tar.bz2, etc.
+    path = Path(filename)
+    suffixes = path.suffixes
 
-    for dirpath, dirnames, files in os.walk(current_directory):
+    if not suffixes:
+        return ''
+
+    return ''.join(suffixes[-2:]) if len(suffixes) > 1 else suffixes[-1]
+
+
+def sanitize_filename(filename: str) -> str:
+    """Sanitizes filename to be Windows-compatible (and thus Linux-compatible)"""
+    # Remove reserved characters
+    sanitized = re.sub(r'[<>:"/\\|?*\x00]', '', filename)
+
+    # Remove control characters
+    sanitized = ''.join(char for char in sanitized if ord(char) > 31)
+
+    # Handle reserved names (including those with superscript digits)
+    reserved_names = r'^(CON|PRN|AUX|NUL|COM[0-9¹²³]|LPT[0-9¹²³])($|\..*$)'
+    if re.match(reserved_names, sanitized, re.I):
+        sanitized = f"_{sanitized}"
+
+    # Remove trailing spaces and periods
+    sanitized = sanitized.rstrip(' .')
+
+    # Ensure the filename isn't empty after sanitization
+    if not sanitized:
+        sanitized = 'unnamed_file'
+
+    # Handle leading period (allowed, but keep it only if it was there originally)
+    if filename.startswith('.') and not sanitized.startswith('.'):
+        sanitized = '.' + sanitized
+
+    # Truncate filename if it's too long (255-character limit for name+extension)
+    max_length = 255
+    if len(sanitized) > max_length:
+        ext = get_extension(sanitized)
+        name = sanitized[:-len(ext)] if ext else sanitized
+        sanitized = name[:max_length - len(ext)] + ext
+
+    return sanitized
+
+
+def rename_file(file_path: str, debug: bool) -> None:
+    if debug:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+
+    directory, filename = os.path.split(file_path)
+    new_filename = sanitize_filename(filename)
+
+    if new_filename != filename:
+        new_file_path = os.path.join(directory, new_filename)
+        try:
+            os.rename(file_path, new_file_path)
+            logging.info(f"Renamed: {filename} -> {new_filename}")
+        except Exception as e:
+            logging.error(f"Error renaming {filename}: {str(e)}")
+    else:
+        logging.info(f"No change needed: {filename}")
+
+
+def file_search(directory: str) -> list[str]:
+    file_list = []
+    for root, _, files in os.walk(directory):
         for file in files:
-            file_path = os.path.join(dirpath, file)
-            files_path_list.append(file_path)
-
-    if len(files_path_list) == 0:
-        sys.exit("No files found!")
-
-    print(f"Found {len(files_path_list)} files in total!")
-    return files_path_list
+            file_list.append(os.path.join(root, file))
+    return file_list
 
 
 def main() -> None:
-
-    parser = argparse.ArgumentParser(description="")
-    parser.add_argument("-p", "--path_to_file", help="The path to the file.")
-    parser.add_argument("-c", "--config_file_path",
-                        help="The path to the crossrename.json file.")
+    parser = argparse.ArgumentParser(
+        description="CrossRename: Harmonize file names for Linux and Windows.")
+    parser.add_argument("-p", "--path", help="The path to the file or directory to rename.", required=True)
     parser.add_argument(
         "-d", "--debug", help="Enable debug mode.", action="store_true")
     parser.add_argument(
@@ -38,32 +101,32 @@ def main() -> None:
     parser.add_argument(
         "-r",
         "--recursive",
-        help="This will rename all files in the directory path given and its subdirectories.",
+        help="Rename all files in the directory path given and its subdirectories.",
+        action="store_true"
     )
     args = parser.parse_args()
 
-    path_to_epub = args.path_to_epub
-    config_file_path = args.config_file_path
+    path = args.path
     debug = args.debug
     recursive = args.recursive
 
-    if path_to_epub is None and recursive is None:
-        sys.exit("Either pass in a path to a file or use the --recursive flag to convert the current directory and "
-                 "its sub-directories")
-    elif path_to_epub:
+    if path is None:
+        sys.exit("Please provide a path to a file or directory using the --path argument.")
+
+    if os.path.isfile(path):
+        rename_file(path, debug)
+    elif os.path.isdir(path):
         if recursive:
-            print("Ignoring --recursive flag since path_to_epub was given")
-        # update_epub(path_to_epub, config_file_path, debug)
-    elif recursive:
-        list_of_files = file_search(recursive)
-        for i in list_of_files:
-            try:
-                print("")
-                # update_epub(i, config_file_path, debug)
-            except Exception as e:
-                print(f"Error! Skipping {i}")
-                if debug:
-                    print(f"Exception: {e}")
+            file_list = file_search(path)
+            for file_path in file_list:
+                rename_file(file_path, debug)
+        else:
+            for item in os.listdir(path):
+                item_path = os.path.join(path, item)
+                if os.path.isfile(item_path):
+                    rename_file(item_path, debug)
+    else:
+        sys.exit(f"Error: {path} is not a valid file or directory")
 
 
 if __name__ == '__main__':
