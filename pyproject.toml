@@ -4,17 +4,20 @@ version = "1.0.0"
 authors = [
   { name="Emmanuel C. Jemeni", email="jemenichinonso11@gmail.com" }
 ]
-description = ""
+description = "Harmonize file names for Linux and Windows."
 readme = "PYPI_README.rst"
 requires-python = ">=3.6"
 license = {file = "LICENSE"}
-keywords = ["files", "rename", "linux", "windows", "transferring"]
+keywords = ["files", "rename", "linux", "windows", "transferring", "filename"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+
+[project.scripts]
+crossrename = "CrossRename.main:main"
 
 [project.urls]
 "Homepage" = "https://github.com/Jemeni11/CrossRename"
