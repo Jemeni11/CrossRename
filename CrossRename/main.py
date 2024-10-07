@@ -7,6 +7,9 @@ import logging
 
 __version__ = "1.0.0"
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s » %(message)s')
+
 
 def get_extension(filename: str) -> str:
     """Extracts the extension from a
@@ -51,18 +54,14 @@ def sanitize_filename(filename: str) -> str:
     max_length = 255
     if len(sanitized) > max_length:
         ext = get_extension(sanitized)
-        name = sanitized[:-len(ext)] if ext else sanitized
-        sanitized = name[:max_length - len(ext)] + ext
+        ext_length = len(ext)
+        name = sanitized[:-ext_length] if ext else sanitized
+        sanitized = name[:max_length - ext_length] + ext
 
     return sanitized
 
 
-def rename_file(file_path: str, debug: bool) -> None:
-    if debug:
-        logging.basicConfig(level=logging.DEBUG)
-    else:
-        logging.basicConfig(level=logging.INFO)
-
+def rename_file(file_path: str) -> None:
     directory, filename = os.path.split(file_path)
     new_filename = sanitize_filename(filename)
 
@@ -70,11 +69,11 @@ def rename_file(file_path: str, debug: bool) -> None:
         new_file_path = os.path.join(directory, new_filename)
         try:
             os.rename(file_path, new_file_path)
-            logging.info(f"Renamed: {filename} -> {new_filename}")
+            logger.info(f"Renamed: {filename} -> {new_filename}")
         except Exception as e:
-            logging.error(f"Error renaming {filename}: {str(e)}")
+            logger.error(f"Error renaming {filename}: {str(e)}")
     else:
-        logging.info(f"No change needed: {filename}")
+        logger.info(f"No change needed: {filename}")
 
 
 def file_search(directory: str) -> list[str]:
@@ -86,47 +85,47 @@ def file_search(directory: str) -> list[str]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="CrossRename: Harmonize file names for Linux and Windows.")
-    parser.add_argument("-p", "--path", help="The path to the file or directory to rename.", required=True)
-    parser.add_argument(
-        "-d", "--debug", help="Enable debug mode.", action="store_true")
-    parser.add_argument(
-        "-v",
-        "--version",
-        help="Prints out the current version and quits.",
-        action='version',
-        version=f"CrossRename Version {__version__}"
-    )
-    parser.add_argument(
-        "-r",
-        "--recursive",
-        help="Rename all files in the directory path given and its subdirectories.",
-        action="store_true"
-    )
-    args = parser.parse_args()
+    try:
+        parser = argparse.ArgumentParser(
+            description="CrossRename: Harmonize file names for Linux and Windows.")
+        parser.add_argument("-p", "--path", help="The path to the file or directory to rename.", required=True)
+        parser.add_argument(
+            "-v",
+            "--version",
+            help="Prints out the current version and quits.",
+            action='version',
+            version=f"CrossRename Version {__version__}"
+        )
+        parser.add_argument(
+            "-r",
+            "--recursive",
+            help="Rename all files in the directory path given and its subdirectories.",
+            action="store_true"
+        )
+        args = parser.parse_args()
 
-    path = args.path
-    debug = args.debug
-    recursive = args.recursive
+        path = args.path
+        recursive = args.recursive
 
-    if path is None:
-        sys.exit("Please provide a path to a file or directory using the --path argument.")
+        if path is None:
+            sys.exit("Please provide a path to a file or directory using the --path argument.")
 
-    if os.path.isfile(path):
-        rename_file(path, debug)
-    elif os.path.isdir(path):
-        if recursive:
-            file_list = file_search(path)
-            for file_path in file_list:
-                rename_file(file_path, debug)
+        if os.path.isfile(path):
+            rename_file(path)
+        elif os.path.isdir(path):
+            if recursive:
+                file_list = file_search(path)
+                for file_path in file_list:
+                    rename_file(file_path)
+            else:
+                for item in os.listdir(path):
+                    item_path = os.path.join(path, item)
+                    if os.path.isfile(item_path):
+                        rename_file(item_path)
         else:
-            for item in os.listdir(path):
-                item_path = os.path.join(path, item)
-                if os.path.isfile(item_path):
-                    rename_file(item_path, debug)
-    else:
-        sys.exit(f"Error: {path} is not a valid file or directory")
+            sys.exit(f"Error: {path} is not a valid file or directory")
+    except Exception as e:
+        logger.error(f"An error occurred: {str(e)}")
 
 
 if __name__ == '__main__':
