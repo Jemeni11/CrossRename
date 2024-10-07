@@ -2,7 +2,7 @@
 
 <br />
 <div align="center">
-  <a href="https://github.com/Jemeni11/CrossRename"><img src="logo.png" alt="Logo" width="80" height="80"></a>
+  <a href="https://github.com/Jemeni11/CrossRename"><img src="logo.png" alt="Logo" width="128" height="128"></a>
 
 <h3 align="center">CrossRename</h3>
 
@@ -25,6 +25,7 @@ Table of Contents
 - [Contributing](#contributing)
 - [Wait a minute, who are you?](#wait-a-minute-who-are-you)
 - [License](#license)
+- [Changelog](#changelog)
 
 ## Introduction
 
@@ -46,21 +47,28 @@ when transferring files between different environments.
 
 ## Installation
 
-[Add installation instructions here, e.g., pip install command or how to clone and set up the repository]
+### From PyPI (Using PIP)
+
+```
+pip install CrossRename
+```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Usage
 
 ```
-python crossrename.py [-h] -p PATH [-d] [-v] [-r]
+usage: crossrename [-h] -p PATH [-d] [-v] [-r]
 
-arguments:
+CrossRename: Harmonize file names for Linux and Windows.
+
+options:
   -h, --help            show this help message and exit
   -p PATH, --path PATH  The path to the file or directory to rename.
   -d, --debug           Enable debug mode.
   -v, --version         Prints out the current version and quits.
   -r, --recursive       Rename all files in the directory path given and its subdirectories.
+
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -70,13 +78,13 @@ arguments:
 Rename a single file:
 
 ```
-python crossrename.py -p /path/to/file.txt
+crossrename -p /path/to/file.txt
 ```
 
-Rename all files in a directory:
+Rename all files in a directory (and its subdirectories ):
 
 ```
-python crossrename.py -p /path/to/directory -r
+crossrename -p /path/to/directory -r
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -125,3 +133,7 @@ You can find me on various platforms:
 [MIT License](LICENSE)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+## Changelog
+[Changelog](/CHANGELOG.md)
