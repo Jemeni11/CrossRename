@@ -1,34 +1,16 @@
-.. container::
+CrossRename
+===========
 
-   .. raw:: html
-
-      <h3 align="center">
-
-   CrossRename
-
-   .. raw:: html
-
-      </h3>
-
-   .. raw:: html
-
-      <p align="center">
-
-   Harmonize file names for Linux and Windows.
-
-   .. raw:: html
-
-      </p>
+Harmonize file names for Linux and Windows.
 
 Table of Contents
+=================
 
 -  `Introduction <#introduction>`__
 -  `Features <#features>`__
 -  `Installation <#installation>`__
 -  `Usage <#usage>`__
-
-   -  `Examples <#examples>`__
-
+-  `Examples <#examples>`__
 -  `Why did I build this? <#why-did-i-build-this>`__
 -  `Contributing <#contributing>`__
 -  `Wait a minute, who are you? <#wait-a-minute-who-are-you>`__
@@ -43,7 +25,6 @@ across Linux and Windows systems. It ensures that your file names are
 compatible with both operating systems, eliminating naming conflicts
 when transferring files between different environments.
 
-
 Features
 ========
 
@@ -54,7 +35,6 @@ Features
 -  Preserves file extensions, including compound extensions like .tar.gz
 -  Provides informative logging with optional debug mode
 
-
 Installation
 ============
 
@@ -64,8 +44,6 @@ From PyPI (Using PIP)
 ::
 
    pip install CrossRename
-
- 
 
 Usage
 =====
@@ -83,8 +61,6 @@ Usage
      -v, --version         Prints out the current version and quits.
      -r, --recursive       Rename all files in the directory path given and its subdirectories.
 
- 
-
 Examples
 --------
 
@@ -94,18 +70,16 @@ Rename a single file:
 
    crossrename -p /path/to/file.txt
 
-Rename all files in a directory (and its subdirectories ):
+Rename all files in a directory (and its subdirectories):
 
 ::
 
    crossrename -p /path/to/directory -r
 
- 
-
 Why did I build this?
 =====================
 
-   [!WARNING]
+.. warning::
 
    I’m no longer dual booting. I’m only using Windows 10 now. I do have
    WSL2 and that’s what I use for testing. I don’t know if there’ll be
@@ -127,16 +101,12 @@ And so, CrossRename was born – a tool to simplify your life when
 managing files between Linux and Windows. No more naming hassles, just
 smooth, worry-free file management.
 
- 
-
 Contributing
 ============
 
 Contributions are welcome! If you’d like to improve CrossRename or add
 support for other operating systems (like macOS), please feel free to
 submit a pull request.
-
- 
 
 Wait a minute, who are you?
 ===========================
@@ -149,15 +119,12 @@ language. You can find me on various platforms:
 -  `GitHub <https://github.com/Jemeni11>`__
 -  `Twitter/X <https://twitter.com/Jemeni11_>`__
 
- 
-
 License
 =======
 
 `MIT License <LICENSE>`__
 
-
 Changelog
 =========
 
-`Changelog </CHANGELOG.md>`__
+`Changelog <CHANGELOG.md>`__
