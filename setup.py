@@ -8,7 +8,7 @@ setuptools.setup(
 	version="1.0.0",
 	author="Emmanuel C. Jemeni",
 	author_email="jemenichinonso11@gmail.com",
-	description="",
+	description="Harmonize file names for Linux and Windows.",
 	long_description=long_description,
 	long_description_content_type="text/x-rst",
 	url="https://github.com/Jemeni11/CrossRename",
@@ -21,7 +21,7 @@ setuptools.setup(
 		]
 	},
 	install_requires=[],
-	keywords="files rename linux windows transferring",
+	keywords="files rename linux windows transferring filename",
 	classifiers=[
 		"Development Status :: 5 - Production/Stable",
 		"Programming Language :: Python :: 3",
