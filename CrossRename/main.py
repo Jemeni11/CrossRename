@@ -120,7 +120,7 @@ def main() -> None:
             help="Rename all files in the directory path given and its subdirectories.",
             action="store_true"
         )
-        parser.add_argument("-d", "--dry-run", help="Perform a dry run, logging changes without renaming.",
+        parser.add_argument("--dry-run", help="Perform a dry run, logging changes without renaming.",
                             action="store_true")
         args = parser.parse_args()
 
