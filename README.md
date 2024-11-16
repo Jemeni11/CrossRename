@@ -153,3 +153,6 @@ You can find me on various platforms:
 
 ## Changelog
 [Changelog](/CHANGELOG.md)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
