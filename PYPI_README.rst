@@ -33,7 +33,9 @@ Features
 -  Handles both individual files and entire directories
 -  Supports recursive renaming of files in subdirectories
 -  Preserves file extensions, including compound extensions like .tar.gz
--  Provides informative logging with optional debug mode
+-  Provides informative logging
+-  Provides a dry-run mode to preview renaming changes without executing them
+-  Skips recursive symlinks to avoid infinite loops
 
 Installation
 ============
@@ -50,16 +52,17 @@ Usage
 
 ::
 
-   usage: crossrename [-h] -p PATH [-d] [-v] [-r]
+   usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d]
 
    CrossRename: Harmonize file names for Linux and Windows.
 
    options:
      -h, --help            show this help message and exit
      -p PATH, --path PATH  The path to the file or directory to rename.
-     -d, --debug           Enable debug mode.
      -v, --version         Prints out the current version and quits.
+     -u, --update          Check if a new version is available.
      -r, --recursive       Rename all files in the directory path given and its subdirectories.
+     -d, --dry-run         Perform a dry run, logging changes without renaming.
 
 Examples
 --------
@@ -76,16 +79,30 @@ Rename all files in a directory (and its subdirectories):
 
    crossrename -p /path/to/directory -r
 
+Perform a dry run to preview renaming changes without executing them:
+
+::
+
+   crossrename -p /path/to/directory -r -d
+
+
+Check for an update:
+
+::
+
+   crossrename -u
+
+
 Why did I build this?
 =====================
 
 .. warning::
 
-   I’m no longer dual booting. I’m only using Windows 10 now. I do have
-   WSL2 and that’s what I use for testing. I don’t know if there’ll be
+   I'm no longer dual booting. I'm only using Windows 10 now. I do have
+   WSL2 and that's what I use for testing. I don't know if there'll be
    any difference in the way the tool works on a native Linux system.
 
-I’m a dual-booter running Windows 10 and Lubuntu 22.04. One day
+I'm a dual-booter running Windows 10 and Lubuntu 22.04. One day
 (literally yesterday lol), while transferring a folder between the two
 systems, I hit a naming roadblock. Five stubborn files refused to budge,
 thanks to the quirky differences in file naming rules between Linux and
@@ -104,14 +121,14 @@ smooth, worry-free file management.
 Contributing
 ============
 
-Contributions are welcome! If you’d like to improve CrossRename or add
+Contributions are welcome! If you'd like to improve CrossRename or add
 support for other operating systems (like macOS), please feel free to
 submit a pull request.
 
 Wait a minute, who are you?
 ===========================
 
-Hello there! I’m Emmanuel Jemeni, and while I primarily work as a
+Hello there! I'm Emmanuel Jemeni, and while I primarily work as a
 Frontend Developer, Python holds a special place as my first programming
 language. You can find me on various platforms:
 
