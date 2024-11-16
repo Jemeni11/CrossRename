@@ -139,9 +139,9 @@ language. You can find me on various platforms:
 License
 =======
 
-`MIT License <LICENSE>`__
+`MIT License <https://github.com/Jemeni11/CrossRename/blob/master/LICENSE>`__
 
 Changelog
 =========
 
-`Changelog <CHANGELOG.md>`__
+`Changelog <https://github.com/Jemeni11/CrossRename/blob/master/CHANGELOG.md>`__
