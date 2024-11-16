@@ -4,8 +4,10 @@ import re
 from pathlib import Path
 import argparse
 import logging
+from .utils import check_for_update
 
 __version__ = "1.1.0"
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s » %(message)s')
@@ -106,7 +108,7 @@ def main() -> None:
     try:
         parser = argparse.ArgumentParser(
             description="CrossRename: Harmonize file names for Linux and Windows.")
-        parser.add_argument("-p", "--path", help="The path to the file or directory to rename.", required=True)
+        parser.add_argument("-p", "--path", help="The path to the file or directory to rename.")
         parser.add_argument(
             "-v",
             "--version",
@@ -115,21 +117,30 @@ def main() -> None:
             version=f"CrossRename Version {__version__}"
         )
         parser.add_argument(
+            "-u", "--update",
+            help="Check if a new version is available.",
+            action="store_true"
+        )
+        parser.add_argument(
             "-r",
             "--recursive",
             help="Rename all files in the directory path given and its subdirectories.",
             action="store_true"
         )
-        parser.add_argument("--dry-run", help="Perform a dry run, logging changes without renaming.",
+        parser.add_argument("-d", "--dry-run", help="Perform a dry run, logging changes without renaming.",
                             action="store_true")
-        args = parser.parse_args()
 
+        args = parser.parse_args()
         path = args.path
         recursive = args.recursive
         dry_run = args.dry_run
 
+        if args.update:
+            check_for_update(__version__)
+            sys.exit()
+
         if path is None:
-            sys.exit("Please provide a path to a file or directory using the --path argument.")
+            sys.exit("Error: Please provide a path to a file or directory using the --path argument.")
 
         if os.path.isfile(path):
             rename_file(path, dry_run)
