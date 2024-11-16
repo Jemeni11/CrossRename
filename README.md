@@ -41,7 +41,9 @@ when transferring files between different environments.
 - Handles both individual files and entire directories
 - Supports recursive renaming of files in subdirectories
 - Preserves file extensions, including compound extensions like .tar.gz
-- Provides informative logging with optional debug mode
+- Provides informative logging
+- Provides a dry-run mode to preview renaming changes without executing them
+- Skips recursive symlinks to avoid infinite loops
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -58,16 +60,18 @@ pip install CrossRename
 ## Usage
 
 ```
-usage: crossrename [-h] -p PATH [-d] [-v] [-r]
+usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d]
 
 CrossRename: Harmonize file names for Linux and Windows.
 
 options:
   -h, --help            show this help message and exit
   -p PATH, --path PATH  The path to the file or directory to rename.
-  -d, --debug           Enable debug mode.
   -v, --version         Prints out the current version and quits.
+  -u, --update          Check if a new version is available.
   -r, --recursive       Rename all files in the directory path given and its subdirectories.
+  -d, --dry-run         Perform a dry run, logging changes without renaming.
+
 
 ```
 
@@ -85,6 +89,18 @@ Rename all files in a directory (and its subdirectories ):
 
 ```
 crossrename -p /path/to/directory -r
+```
+
+Perform a dry run to preview renaming changes without executing them:
+
+```
+crossrename -p /path/to/directory -r -d
+```
+
+Check for an update:
+
+```
+crossrename -u
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

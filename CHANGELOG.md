@@ -14,8 +14,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [//]: # (- **Security** in case of vulnerabilities.)
 
 
+## [1.1.0] - 2024-11-15
+### Added
+- Dry-run mode and recursive symlink handling.
+- add --update flag to check for new version.
+
+### Changed
+- Changed logo
+
+### Removed
+- Removed debug argument option, it wasn't even implemented
+
 ## [1.0.0] - 2024-10-07
 - Released CrossRename
 
 
+[1.1.0]: https://github.com/Jemeni11/CrossRename/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Jemeni11/CrossRename/releases/tag/v1.0.0
