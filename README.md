@@ -63,7 +63,7 @@ pip install CrossRename
 ## Usage
 
 ```
-usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [--force]
+usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [--force] [--credits]
 
 CrossRename: Harmonize file and directory names for Linux and Windows.
 
@@ -76,6 +76,7 @@ options:
   -d, --dry-run               Perform a dry run, logging changes without renaming.
   -D, --rename-directories    Also rename directories to be cross-platform compatible. Use with caution!
   --force                     Skip safety prompts (useful for automated scripts)
+  --credits                   Show credits and support information
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -122,6 +123,12 @@ Check for an update:
 
 ```
 crossrename -u
+```
+
+Show credits and project information:
+
+```
+crossrename --credits
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
