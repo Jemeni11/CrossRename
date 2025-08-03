@@ -3,22 +3,17 @@
 CrossRename
 ===========
 
-.. raw:: html
+.. image:: https://github.com/Jemeni11/CrossRename/blob/master/logo.png?raw=true
+   :alt: CrossRename Logo
+   :width: 128px
+   :height: 128px
+   :align: center
 
-   <div align="center">
-     <img src="https://github.com/Jemeni11/CrossRename/blob/master/logo.png?raw=true" alt="Logo" width="128" height="128">
-     <br/>
-     <br/>
-   </div>
 
-.. raw:: html
+Harmonize file and directory names for Linux and Windows.
 
-   <p align="center">
-     Harmonize file and directory names for Linux and Windows.
-     <br />
-     <a href="https://github.com/Jemeni11/CrossRename"><strong>Explore the repo »</strong></a>
-     <br />
-   </p>
+`Explore the repo » <https://github.com/Jemeni11/CrossRename>`__
+
 
 Table of Contents
 -----------------
