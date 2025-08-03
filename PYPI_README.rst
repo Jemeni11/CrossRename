@@ -37,7 +37,7 @@ CrossRename is a command-line tool designed to harmonize file and directory name
 It ensures that your file names are compatible with both operating systems, eliminating naming conflicts
 when transferring files between different environments.
 
-`back to top <description_>`__
+`back to top <crossrename_>`__
 
 Features
 --------
@@ -52,7 +52,7 @@ Features
 - Interactive safety warnings with option to skip for automation
 - Skips recursive symlinks to avoid infinite loops
 
-`back to top <description_>`__
+`back to top <crossrename_>`__
 
 Installation
 ------------
@@ -64,7 +64,7 @@ From PyPI (Using PIP)
 
    pip install CrossRename
 
-`back to top <description_>`__
+`back to top <crossrename_>`__
 
 Usage
 -----
@@ -86,7 +86,7 @@ Usage
      --force                     Skip safety prompts (useful for automated scripts)
      --credits                   Show credits and support information
 
-`back to top <description_>`__
+`back to top <crossrename_>`__
 
 Examples
 ~~~~~~~~
@@ -139,7 +139,7 @@ Show credits and project information:
 
    crossrename --credits
 
-`back to top <description_>`__
+`back to top <crossrename_>`__
 
 Safety First
 ~~~~~~~~~~~~
@@ -167,7 +167,7 @@ However, it's strongly recommended to:
 Directory renaming is particularly powerful and potentially disruptive since it changes folder paths that other
 applications might reference.
 
-`back to top <description_>`__
+`back to top <crossrename_>`__
 
 Why did I build this?
 ---------------------
@@ -187,7 +187,7 @@ about how to go about this.
 Long story short, I got annoyed enough to build CrossRename. Now I don't have to deal with file naming headaches when
 switching between systems.
 
-`back to top <description_>`__
+`back to top <crossrename_>`__
 
 Contributing
 ------------
@@ -195,7 +195,7 @@ Contributing
 Contributions are welcome! If you'd like to improve CrossRename or add support for
 other operating systems (like macOS), please feel free to submit a pull request.
 
-`back to top <description_>`__
+`back to top <crossrename_>`__
 
 Wait a minute, who are you?
 ---------------------------
@@ -209,18 +209,18 @@ You can find me on various platforms:
 - `BlueSky <https://bsky.app/profile/jemeni11.bsky.social>`__
 - `Twitter/X <https://twitter.com/Jemeni11_>`__
 
-`back to top <description_>`__
+`back to top <crossrename_>`__
 
 License
 -------
 
 `MIT License <https://github.com/Jemeni11/CrossRename/blob/main/LICENSE>`__
 
-`back to top <description_>`__
+`back to top <crossrename_>`__
 
 Changelog
 ---------
 
 `Changelog <https://github.com/Jemeni11/CrossRename/blob/main/CHANGELOG.md>`__
 
-`back to top <description_>`__
+`back to top <crossrename_>`__
