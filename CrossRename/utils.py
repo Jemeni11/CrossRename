@@ -8,7 +8,7 @@ def parse_version(version: str):
         return tuple([int(part) for part in version.split(".")])
     except ValueError:
         # Handle edge cases like "1.2.3a1" or malformed versions
-        return (0, 0, 0)  # Fallback to avoid crashes
+        return 0, 0, 0  # Fallback to avoid crashes
 
 
 def check_for_update(current_version: str):
@@ -24,6 +24,7 @@ def check_for_update(current_version: str):
             print(f"Run `pip install --upgrade CrossRename` to update.")
         else:
             print(f"You're on the latest version: v{current_version}.")
+            print("💖 Enjoying CrossRename? Check out `crossrename --credits`")
 
     except error.URLError as e:
         print(f"Unable to check for updates: {e}")
