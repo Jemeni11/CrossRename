@@ -26,17 +26,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Directory renaming functionality with `-D/--rename-directories` flag
 - Interactive safety warnings before performing renaming operations
 - `--force` flag to skip safety prompts for automated scripts
+- `--credits` command to show project information and support links
 - Depth-first directory processing to prevent path breakage during renames
+- Credits promotion in update check when user is on latest version
+- Funding link in project metadata for easier support access
 
 ### Changed
 
 - Enhanced recursive option to work with both files and directories when `-D` is used
 - Updated project description and documentation for directory renaming capability
 - Rewrote project story section in more casual tone
+- Updated license format in pyproject.toml to modern standard
+- Improved help text with epilog promoting credits command
 
 ### Fixed
 
 - Added error handling for malformed version strings in update checker
+- Fixed critical bug where directory renaming broke subsequent file operations
+- Corrected path handling after directory renames to prevent "file not found" errors
 
 ## [1.1.0] - 2024-11-15
 
