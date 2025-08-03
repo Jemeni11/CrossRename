@@ -1,14 +1,14 @@
 [project]
 name = "CrossRename"
-version = "1.1.0"
+version = "1.2.0"
 authors = [
   { name="Emmanuel C. Jemeni", email="jemenichinonso11@gmail.com" }
 ]
-description = "Harmonize file names for Linux and Windows."
+description = "Harmonize file and directory names for Linux and Windows."
 readme = "PYPI_README.rst"
 requires-python = ">=3.9"
 license = {file = "LICENSE"}
-keywords = ["files", "rename", "linux", "windows", "transferring", "filename"]
+keywords = ["files", "folders", "rename", "linux", "windows", "transferring", "filename"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
