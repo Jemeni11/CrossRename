@@ -141,15 +141,15 @@ def rename_directory(dir_path: str, dry_run: bool = False) -> str:
 
 def show_warning(renaming_directories: bool):
     if renaming_directories:
-        print("⚠️  WARNING: File AND directory renaming is enabled!")
+        print("⚠️ WARNING: File AND directory renaming is enabled!")
         print("   This may rename the target directory itself and/or subdirectories.")
         print("   Directory renaming will change folder paths and may break external references.")
     else:
-        print("⚠️  WARNING: File renaming is enabled!")
+        print("⚠️ WARNING: File renaming is enabled!")
 
-    print("   This may break scripts, shortcuts, or other references to these files.")
-    print("   It is HIGHLY recommended to run with --dry-run first.")
-    print("   Continue? (y/N): ", end="")
+    print("  This may break scripts, shortcuts, or other references to these files.")
+    print("  It is HIGHLY recommended to run with --dry-run first.")
+    print("  Continue? (y/N): ", end="")
 
     response = input().lower().strip()
     if response != 'y':
@@ -157,10 +157,42 @@ def show_warning(renaming_directories: bool):
         sys.exit(0)
 
 
+def show_credits():
+    print("🎉 CrossRename - Made by Emmanuel C. Jemeni (@Jemeni11)")
+    print("\n📖 Why I built this:")
+    print("""
+    ⚠️  WARNING: I'm no longer dual booting. I'm using Windows 11 now. I do have WSL2 and that's what I use for testing.
+    I don't know if there'll be any difference in the way the tool works on a native Linux system.
+
+    So I was dual-booting Windows 10 and Lubuntu 22.04, and one day I'm trying to move some files between the two systems.
+    Five files just wouldn't copy over because of what I later found out were the differences in Windows and Linux's file
+    naming rules.
+    
+    That got me thinking because I'd already built a Python package that had to deal with some file creation and renaming. 
+    It's called FicImage (https://github.com/Jemeni11/ficimage), please check it out 🫶! So, I had an idea or two
+    about how to go about this.
+    
+    Long story short, I got annoyed enough to build CrossRename. Now I don't have to deal with file naming headaches when
+    switching between systems.
+    """)
+    print("\n👨‍💻 Find me at:")
+    print("  • GitHub: https://github.com/Jemeni11")
+    print("  • LinkedIn: https://linkedin.com/in/emmanuel-jemeni")
+    print("  • BlueSky: https://bsky.app/profile/jemeni11.bsky.social")
+    print("  • Twitter/X: https://twitter.com/Jemeni11_")
+    print("\n💖 Support CrossRename:")
+    print("  ⭐ Star the repo: https://github.com/Jemeni11/CrossRename")
+    print("  🔄 Contribute: PRs welcome!")
+    print("  ☕ Buy me a coffee: https://buymeacoffee.com/jemeni11")
+    print("  💰 GitHub Sponsors: https://github.com/sponsors/Jemeni11")
+
+
 def main() -> None:
     try:
         parser = argparse.ArgumentParser(
-            description="CrossRename: Harmonize file and directory names for Linux and Windows.")
+            description="CrossRename: Harmonize file and directory names for Linux and Windows.",
+            epilog="Made with ❤️ by Emmanuel Jemeni | Run --credits to learn more & show support"
+        )
         parser.add_argument("-p", "--path", help="The path to the file or directory to rename.")
         parser.add_argument(
             "-v",
@@ -192,6 +224,11 @@ def main() -> None:
             help="Skip safety prompts (useful for automated scripts)",
             action="store_true"
         )
+        parser.add_argument(
+            "--credits",
+            help="Show credits and support information",
+            action="store_true"
+        )
 
         args = parser.parse_args()
         path = args.path
@@ -202,6 +239,9 @@ def main() -> None:
         if args.update:
             check_for_update(__version__)
             sys.exit()
+        if args.credits:
+            show_credits()
+            sys.exit()
 
         # Show warning for ANY renaming operation (unless dry-run or force)
         if not dry_run and not args.force:
@@ -209,7 +249,6 @@ def main() -> None:
                 show_warning(rename_dirs)
             else:
                 sys.exit("Error: Renaming requires --force flag in non-interactive mode")
-
 
         if path is None:
             sys.exit("Error: Please provide a path to a file or directory using the --path argument.")
@@ -230,7 +269,7 @@ def main() -> None:
                     rename_file(file_path, dry_run)
             else:
                 if rename_dirs:
-                    rename_directory(path, dry_run)
+                    path = rename_directory(path, dry_run)
 
                 # Handle files in the directory
                 for item in os.listdir(path):
