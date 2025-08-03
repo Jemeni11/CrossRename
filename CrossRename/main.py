@@ -6,7 +6,7 @@ import argparse
 import logging
 from .utils import check_for_update
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s » %(message)s')

@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [//]: # (- **Security** in case of vulnerabilities.)
 
+## [1.2.1] - 2025-08-03
+
+### Fixed
+- Broken links in rst readme
+
 ## [1.2.0] - 2025-08-03
 
 ### Added
@@ -63,6 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2024-10-07
 
 - Released CrossRename
+
+[1.2.1]: https://github.com/Jemeni11/CrossRename/compare/v1.2.0...v1.2.1
 
 [1.2.0]: https://github.com/Jemeni11/CrossRename/compare/v1.1.0...v1.2.0
 
