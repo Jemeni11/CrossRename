@@ -21,6 +21,7 @@ Table of Contents
 - [Installation](#installation)
 - [Usage](#usage)
     - [Examples](#examples)
+    - [Safety First](#safety-first)
 - [Why did I build this?](#why-did-i-build-this)
 - [Contributing](#contributing)
 - [Wait a minute, who are you?](#wait-a-minute-who-are-you)
@@ -29,7 +30,7 @@ Table of Contents
 
 ## Introduction
 
-CrossRename is a command-line tool designed to harmonize file names across Linux and Windows systems.
+CrossRename is a command-line tool designed to harmonize file and directory names across Linux and Windows systems.
 It ensures that your file names are compatible with both operating systems, eliminating naming conflicts
 when transferring files between different environments.
 
@@ -38,11 +39,13 @@ when transferring files between different environments.
 ## Features
 
 - Sanitizes file names to be Windows-compatible (and thus Linux-compatible)
+- **NEW:** Optionally renames directories to be cross-platform compatible
 - Handles both individual files and entire directories
 - Supports recursive renaming of files in subdirectories
 - Preserves file extensions, including compound extensions like .tar.gz
 - Provides informative logging
 - Provides a dry-run mode to preview renaming changes without executing them
+- Interactive safety warnings with option to skip for automation
 - Skips recursive symlinks to avoid infinite loops
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -60,19 +63,19 @@ pip install CrossRename
 ## Usage
 
 ```
-usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d]
+usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [--force]
 
-CrossRename: Harmonize file names for Linux and Windows.
+CrossRename: Harmonize file and directory names for Linux and Windows.
 
 options:
-  -h, --help            show this help message and exit
-  -p PATH, --path PATH  The path to the file or directory to rename.
-  -v, --version         Prints out the current version and quits.
-  -u, --update          Check if a new version is available.
-  -r, --recursive       Rename all files in the directory path given and its subdirectories.
-  -d, --dry-run         Perform a dry run, logging changes without renaming.
-
-
+  -h, --help                  show this help message and exit
+  -p, --path PATH             The path to the file or directory to rename.
+  -v, --version               Prints out the current version and quits.
+  -u, --update                Check if a new version is available.
+  -r, --recursive             Rename all files in the directory path given and its subdirectories. When used with -D, also renames subdirectories.
+  -d, --dry-run               Perform a dry run, logging changes without renaming.
+  -D, --rename-directories    Also rename directories to be cross-platform compatible. Use with caution!
+  --force                     Skip safety prompts (useful for automated scripts)
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -85,16 +88,34 @@ Rename a single file:
 crossrename -p /path/to/file.txt
 ```
 
-Rename all files in a directory (and its subdirectories ):
+Rename all files in a directory (and its subdirectories):
 
 ```
 crossrename -p /path/to/directory -r
 ```
 
+Rename all files AND directories recursively:
+
+```
+crossrename -p /path/to/directory -r -D
+```
+
+Rename a single directory:
+
+```
+crossrename -p /path/to/problematic_directory -D
+```
+
 Perform a dry run to preview renaming changes without executing them:
 
 ```
-crossrename -p /path/to/directory -r -d
+crossrename -p /path/to/directory -r -D -d
+```
+
+Skip safety prompts for automated scripts:
+
+```
+crossrename -p /path/to/directory -r -D --force
 ```
 
 Check for an update:
@@ -105,23 +126,48 @@ crossrename -u
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+### Safety First
+
+> [!WARNING]  
+> Always run with `--dry-run` first!
+
+CrossRename will show interactive safety warnings before making any changes to help prevent accidental data loss.
+However, it's strongly recommended to:
+
+1. **Run a dry run first** to preview what will be changed:
+   ```
+   crossrename -p /your/path -r -D -d
+   ```
+
+2. **Backup your data** before running the tool on important files
+
+3. **Use `--force` flag** for automation in CI/CD pipelines:
+   ```
+   crossrename -p /build/output -r -D --force
+   ```
+
+Directory renaming is particularly powerful and potentially disruptive since it changes folder paths that other
+applications might reference.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Why did I build this?
 
 > [!WARNING]
 >
-> I'm no longer dual booting. I'm only using Windows 10 now. I do have WSL2 and that's what I use for testing.
+> I'm no longer dual booting. I'm using Windows 11 now. I do have WSL2 and that's what I use for testing.
 > I don't know if there'll be any difference in the way the tool works on a native Linux system.
 
-I'm a dual-booter running Windows 10 and Lubuntu 22.04. One day (literally yesterday lol), while transferring a
-folder between the two systems, I hit a naming roadblock. Five stubborn files refused to budge,
-thanks to the quirky differences in file naming rules between Linux and Windows.
+So I was dual-booting Windows 10 and Lubuntu 22.04, and one day I'm trying to move some files between the two systems.
+Five files just wouldn't copy over because of what I later found out were the differences in Windows and Linux's file
+naming rules.
 
-This experience got me thinking. You see, I had previously built [FicImage](https://github.com/Jemeni11/ficimage),
-a nifty application that elevates the reading experience of [FicHub](https://fichub.net/) epubs by adding missing
-images. It required handling file creation and renaming, and that knowledge proved invaluable.
+That got me thinking because I'd already built a Python package that had to deal with some file creation and renaming (
+It's called [FicImage](https://github.com/Jemeni11/ficimage), please check it out 🫶) before, so I had an idea or two
+about how to go about this.
 
-And so, CrossRename was born – a tool to simplify your life when managing files between Linux and
-Windows. No more naming hassles, just smooth, worry-free file management.
+Long story short, I got annoyed enough to build CrossRename. Now I don't have to deal with file naming headaches when
+switching between systems.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -140,6 +186,7 @@ You can find me on various platforms:
 
 - [LinkedIn](https://www.linkedin.com/in/emmanuel-jemeni)
 - [GitHub](https://github.com/Jemeni11)
+- [BlueSky](https://bsky.app/profile/jemeni11.bsky.social)
 - [Twitter/X](https://twitter.com/Jemeni11_)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -150,8 +197,8 @@ You can find me on various platforms:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
 ## Changelog
+
 [Changelog](/CHANGELOG.md)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
