@@ -27,10 +27,25 @@ def get_extension(filename: str) -> str:
     return ''.join(suffixes[-2:]) if len(suffixes) > 1 else suffixes[-1]
 
 
-def sanitize_filename(filename: str) -> str:
+def sanitize_filename(filename: str, use_alts: bool) -> str:
     """Sanitizes filename to be Windows-compatible (and thus Linux-compatible)"""
-    # Remove reserved characters
-    sanitized = re.sub(r'[<>:"/\\|?*\x00]', '', filename)
+    if use_alts:
+        # Replace reserved characters
+        sanitized = re.sub(r'\x00', '', filename)
+        sanitized = sanitized.translate(str.maketrans({
+            '<': 'ᐸ', # Canadian Syllabics Pa U+1438
+            '>': 'ᐳ', # Canadian Syllabics Po U+1433
+            ':': '∶', # Ratio U+2236
+            '"': 'ʺ', # Modified Letter Double Prime U+2BA
+            '/': '∕', # Division Slash U+2215
+            '\\': '⧵', # Reverse Solidus Operator U+29F5
+            '|': '∣', # Divides U+2223
+            '?': '﹖', # Small Question Mark U+FE56
+            '*': '🞱' # Bold Five Spoked Asterisk U+1F7B1
+        }))
+    else:
+        # Remove reserved characters
+        sanitized = re.sub(r'[<>:"/\\|?*\x00]', '', filename)
 
     # Remove control characters
     sanitized = ''.join(char for char in sanitized if ord(char) > 31)
@@ -62,9 +77,9 @@ def sanitize_filename(filename: str) -> str:
     return sanitized
 
 
-def rename_file(file_path: str, dry_run: bool = False) -> None:
+def rename_file(file_path: str, dry_run: bool = False, use_alts: bool = False) -> None:
     directory, filename = os.path.split(file_path)
-    new_filename = sanitize_filename(filename)
+    new_filename = sanitize_filename(filename, use_alts)
 
     if new_filename != filename:
         new_file_path = os.path.join(directory, new_filename)
@@ -84,7 +99,7 @@ def file_search(directory: str) -> list[str]:
     file_list = []
     visited_paths = set()
 
-    for root, _, files in os.walk(directory, followlinks=False):
+    for root, _, files in os.walk(directory, followlinks = False):
         real_root = os.path.realpath(root)
 
         if real_root in visited_paths:
@@ -116,10 +131,10 @@ def collect_directories(directory: str) -> list[str]:
     return sorted(directories, key=lambda x: x.count(os.sep), reverse=True)
 
 
-def rename_directory(dir_path: str, dry_run: bool = False) -> str:
+def rename_directory(dir_path: str, dry_run: bool = False, use_alts: bool = False) -> str:
     """Rename directory and return the new path"""
     parent_dir, dir_name = os.path.split(dir_path)
-    new_dir_name = sanitize_filename(dir_name)
+    new_dir_name = sanitize_filename(dir_name, use_alts)
 
     if new_dir_name != dir_name:
         new_dir_path = os.path.join(parent_dir, new_dir_name)
@@ -212,11 +227,19 @@ def main() -> None:
             help="Rename all files in the directory path given and its subdirectories. When used with -D, also renames subdirectories.",
             action="store_true"
         )
-        parser.add_argument("-d", "--dry-run", help="Perform a dry run, logging changes without renaming.",
-                            action="store_true")
+        parser.add_argument(
+            "-d", "--dry-run",
+            help="Perform a dry run, logging changes without renaming.",
+            action="store_true"
+        )
         parser.add_argument(
             "-D", "--rename-directories",
             help="Also rename directories to be cross-platform compatible. Use with caution!",
+            action="store_true"
+        )
+        parser.add_argument(
+            "-a", "--use-alternatives",
+            help="Replaces the characters '<>:\"/\\|?*' with the Unicode lookalikes 'ᐸᐳ∶ʺ∕⧵∣﹖🞱",
             action="store_true"
         )
         parser.add_argument(
@@ -235,6 +258,7 @@ def main() -> None:
         recursive = args.recursive
         dry_run = args.dry_run
         rename_dirs = args.rename_directories
+        use_alts = args.use_alternatives
 
         if args.update:
             check_for_update(__version__)
@@ -254,28 +278,28 @@ def main() -> None:
             sys.exit("Error: Please provide a path to a file or directory using the --path argument.")
 
         if os.path.isfile(path):
-            rename_file(path, dry_run)
+            rename_file(path, dry_run, use_alts)
         elif os.path.isdir(path):
             if recursive:
                 # First rename directories (deepest first)
                 if rename_dirs:
                     directories = collect_directories(path)
                     for dir_path in directories:
-                        rename_directory(dir_path, dry_run)
+                        rename_directory(dir_path, dry_run, use_alts)
 
                 # Then rename files (using updated paths)
                 file_list = file_search(path)
                 for file_path in file_list:
-                    rename_file(file_path, dry_run)
+                    rename_file(file_path, dry_run, use_alts)
             else:
                 if rename_dirs:
-                    path = rename_directory(path, dry_run)
+                    path = rename_directory(path, dry_run, use_alts)
 
                 # Handle files in the directory
                 for item in os.listdir(path):
                     item_path = os.path.join(path, item)
                     if os.path.isfile(item_path):
-                        rename_file(item_path, dry_run)
+                        rename_file(item_path, dry_run, use_alts)
         else:
             sys.exit(f"Error: {path} is not a valid file or directory")
     except Exception as e:
