@@ -39,6 +39,7 @@ when transferring files between different environments.
 ## Features
 
 - Sanitizes file names to be Windows-compatible (and thus Linux-compatible)
+- **NEW:** Option to replace forbidden characters with Unicode lookalikes instead of removing them
 - **NEW:** Optionally renames directories to be cross-platform compatible
 - Handles both individual files and entire directories
 - Supports recursive renaming of files in subdirectories
@@ -63,7 +64,7 @@ pip install CrossRename
 ## Usage
 
 ```
-usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [--force] [--credits]
+usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [-a] [--force] [--credits]
 
 CrossRename: Harmonize file and directory names for Linux and Windows.
 
@@ -75,6 +76,7 @@ options:
   -r, --recursive             Rename all files in the directory path given and its subdirectories. When used with -D, also renames subdirectories.
   -d, --dry-run               Perform a dry run, logging changes without renaming.
   -D, --rename-directories    Also rename directories to be cross-platform compatible. Use with caution!
+  -a, --use-alternatives      Replace forbidden characters with Unicode lookalikes instead of removing them. May cause display issues on some systems.
   --force                     Skip safety prompts (useful for automated scripts)
   --credits                   Show credits and support information
 ```
@@ -119,6 +121,11 @@ Skip safety prompts for automated scripts:
 crossrename -p /path/to/directory -r -D --force
 ```
 
+Use [Unicode alternatives](#unicode-alternatives-mode) instead of removing characters:
+```
+crossrename -p /path/to/file.txt -a
+```
+
 Check for an update:
 
 ```
@@ -130,6 +137,34 @@ Show credits and project information:
 ```
 crossrename --credits
 ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Unicode Alternatives Mode
+
+Use `--use-alternatives` to replace forbidden characters with similar Unicode characters instead of removing them:
+
+```bash
+crossrename -p "file<name>.txt" --use-alternatives
+# Result: "fileᐸnameᐳ.txt" instead of "filename.txt"
+```
+
+Character mappings:
+
+- `<` → `ᐸ` (Canadian Syllabics Pa)
+- `>` → `ᐳ` (Canadian Syllabics Po)
+- `:` → `∶` (Ratio)
+- `"` → `ʺ` (Modified Letter Double Prime)
+- `/` → `∕` (Division Slash)
+- `\` → `⧵` (Reverse Solidus Operator)
+- `|` → `∣` (Divides)
+- `?` → `﹖` (Small Question Mark)
+- `*` → `🞱` (Bold Five Spoked Asterisk)
+
+> [!WARNING]
+>
+> These Unicode characters may not display correctly on all systems, fonts, or applications.
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

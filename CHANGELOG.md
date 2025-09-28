@@ -19,9 +19,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [//]: # (- **Security** in case of vulnerabilities.)
 
+## [1.3.0] - 2025-09-28
+
+### Added
+
+- Unicode alternatives mode with `-a/--use-alternatives` flag to replace forbidden characters with Unicode lookalikes instead of removing them
+- Enhanced warning system that alerts users about potential Unicode compatibility issues when alternatives mode is enabled
+- Character mapping documentation showing which Unicode characters replace forbidden ones
+
+### Changed
+
+- Updated help text and documentation to include the new Unicode alternatives feature
+- Improved function signatures and documentation for better maintainability
+
 ## [1.2.1] - 2025-08-03
 
 ### Fixed
+
 - Broken links in rst readme
 
 ## [1.2.0] - 2025-08-03
@@ -68,6 +82,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2024-10-07
 
 - Released CrossRename
+
+[1.3.0]: https://github.com/Jemeni11/CrossRename/compare/v1.2.1...v1.3.0
 
 [1.2.1]: https://github.com/Jemeni11/CrossRename/compare/v1.2.0...v1.2.1
 

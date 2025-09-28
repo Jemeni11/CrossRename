@@ -22,6 +22,7 @@ Table of Contents
 - `Usage`_
 
   - `Examples`_
+  - `Unicode Alternatives Mode`_
   - `Safety First`_
 
 - `Why did I build this?`_
@@ -37,12 +38,11 @@ CrossRename is a command-line tool designed to harmonize file and directory name
 It ensures that your file names are compatible with both operating systems, eliminating naming conflicts
 when transferring files between different environments.
 
-`back to top <crossrename_>`__
-
 Features
 --------
 
 - Sanitizes file names to be Windows-compatible (and thus Linux-compatible)
+- **NEW:** Option to replace forbidden characters with Unicode lookalikes instead of removing them
 - **NEW:** Optionally renames directories to be cross-platform compatible
 - Handles both individual files and entire directories
 - Supports recursive renaming of files in subdirectories
@@ -52,7 +52,7 @@ Features
 - Interactive safety warnings with option to skip for automation
 - Skips recursive symlinks to avoid infinite loops
 
-`back to top <crossrename_>`__
+`back to introduction  <introduction_>`__
 
 Installation
 ------------
@@ -64,14 +64,14 @@ From PyPI (Using PIP)
 
    pip install CrossRename
 
-`back to top <crossrename_>`__
+`back to introduction  <introduction_>`__
 
 Usage
 -----
 
 .. code-block:: text
 
-   usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [--force] [--credits]
+   usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [-a] [--force] [--credits]
 
    CrossRename: Harmonize file and directory names for Linux and Windows.
 
@@ -83,10 +83,11 @@ Usage
      -r, --recursive             Rename all files in the directory path given and its subdirectories. When used with -D, also renames subdirectories.
      -d, --dry-run               Perform a dry run, logging changes without renaming.
      -D, --rename-directories    Also rename directories to be cross-platform compatible. Use with caution!
+     -a, --use-alternatives      Replace forbidden characters with Unicode lookalikes instead of removing them. May cause display issues on some systems.
      --force                     Skip safety prompts (useful for automated scripts)
      --credits                   Show credits and support information
 
-`back to top <crossrename_>`__
+`back to introduction  <introduction_>`__
 
 Examples
 ~~~~~~~~
@@ -127,6 +128,12 @@ Skip safety prompts for automated scripts:
 
    crossrename -p /path/to/directory -r -D --force
 
+Use Unicode alternatives instead of removing characters:
+
+.. code-block:: bash
+
+   crossrename -p /path/to/file.txt -a
+
 Check for an update:
 
 .. code-block:: bash
@@ -139,7 +146,36 @@ Show credits and project information:
 
    crossrename --credits
 
-`back to top <crossrename_>`__
+`back to introduction  <introduction_>`__
+
+
+Unicode Alternatives Mode
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use `--use-alternatives` to replace forbidden characters with similar Unicode characters instead of removing them:
+
+
+.. code-block:: bash
+
+   crossrename -p "file<name>.txt" --use-alternatives
+    # Result: "fileᐸnameᐳ.txt" instead of "filename.txt"
+
+Character mappings:
+
+- ``<`` → ``ᐸ`` (Canadian Syllabics Pa)
+- ``>`` → ``ᐳ`` (Canadian Syllabics Po)
+- ``:`` → ``∶`` (Ratio)
+- ``"`` → ``ʺ`` (Modified Letter Double Prime)
+- ``/`` → ``∕`` (Division Slash)
+- ``\`` → ``⧵`` (Reverse Solidus Operator)
+- ``|`` → ``∣`` (Divides)
+- ``?`` → ``﹖`` (Small Question Mark)
+- ``*`` → ``🞱`` (Bold Five Spoked Asterisk)
+
+.. warning::
+   These Unicode characters may not display correctly on all systems, fonts, or applications.
+
+`back to introduction  <introduction_>`__
 
 Safety First
 ~~~~~~~~~~~~
@@ -167,7 +203,7 @@ However, it's strongly recommended to:
 Directory renaming is particularly powerful and potentially disruptive since it changes folder paths that other
 applications might reference.
 
-`back to top <crossrename_>`__
+`back to introduction  <introduction_>`__
 
 Why did I build this?
 ---------------------
@@ -187,7 +223,7 @@ about how to go about this.
 Long story short, I got annoyed enough to build CrossRename. Now I don't have to deal with file naming headaches when
 switching between systems.
 
-`back to top <crossrename_>`__
+`back to introduction  <introduction_>`__
 
 Contributing
 ------------
@@ -195,7 +231,7 @@ Contributing
 Contributions are welcome! If you'd like to improve CrossRename or add support for
 other operating systems (like macOS), please feel free to submit a pull request.
 
-`back to top <crossrename_>`__
+`back to introduction  <introduction_>`__
 
 Wait a minute, who are you?
 ---------------------------
@@ -209,18 +245,18 @@ You can find me on various platforms:
 - `BlueSky <https://bsky.app/profile/jemeni11.bsky.social>`__
 - `Twitter/X <https://twitter.com/Jemeni11_>`__
 
-`back to top <crossrename_>`__
+`back to introduction  <introduction_>`__
 
 License
 -------
 
 `MIT License <https://github.com/Jemeni11/CrossRename/blob/main/LICENSE>`__
 
-`back to top <crossrename_>`__
+`back to introduction  <introduction_>`__
 
 Changelog
 ---------
 
 `Changelog <https://github.com/Jemeni11/CrossRename/blob/main/CHANGELOG.md>`__
 
-`back to top <crossrename_>`__
+`back to introduction  <introduction_>`__
