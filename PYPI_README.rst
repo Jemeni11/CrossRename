@@ -8,7 +8,7 @@ CrossRename
    :align: center
 
 
-Harmonize file and directory names for Linux and Windows.
+Harmonize file and directory names for Linux, Windows, and macOS.
 
 `Explore the repo » <https://github.com/Jemeni11/CrossRename>`__
 
@@ -25,6 +25,7 @@ Table of Contents
   - `Unicode Alternatives Mode`_
   - `Safety First`_
 
+- `Platform Compatibility`_
 - `Why did I build this?`_
 - `Contributing`_
 - `Wait a minute, who are you?`_
@@ -34,16 +35,16 @@ Table of Contents
 Introduction
 ------------
 
-CrossRename is a command-line tool designed to harmonize file and directory names across Linux and Windows systems.
-It ensures that your file names are compatible with both operating systems, eliminating naming conflicts
+CrossRename is a command-line tool designed to harmonize file and directory names across Linux, Windows, and macOS systems.
+It ensures that your file names are compatible with all three operating systems, eliminating naming conflicts
 when transferring files between different environments.
 
 Features
 --------
 
-- Sanitizes file names to be Windows-compatible (and thus Linux-compatible)
-- **NEW:** Option to replace forbidden characters with Unicode lookalikes instead of removing them
-- **NEW:** Optionally renames directories to be cross-platform compatible
+- Sanitizes file names to be Windows-compatible (and thus Linux-compatible and macOS-compatible)
+- Option to replace forbidden characters with Unicode lookalikes instead of removing them
+- Optionally renames directories to be cross-platform compatible
 - Handles both individual files and entire directories
 - Supports recursive renaming of files in subdirectories
 - Preserves file extensions, including compound extensions like .tar.gz
@@ -73,7 +74,7 @@ Usage
 
    usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [-a] [--force] [--credits]
 
-   CrossRename: Harmonize file and directory names for Linux and Windows.
+   CrossRename: Harmonize file and directory names for Linux, Windows and macOS.
 
    options:
      -h, --help                  show this help message and exit
@@ -205,31 +206,65 @@ applications might reference.
 
 `back to introduction  <introduction_>`__
 
+Platform Compatibility
+----------------------
+
+CrossRename works on:
+
+- **Windows** (NTFS, FAT32, exFAT)
+- **Linux** (ext4, ext3, btrfs, xfs, etc.)
+- **macOS** (APFS, HFS+)
+
+The tool sanitizes filenames to be compatible with the *most restrictive* filesystem (Windows),
+ensuring files work everywhere. This means:
+
+- Removing Windows-forbidden characters: ``< > : " / \ | ? *``
+- Handling Windows reserved names: CON, PRN, AUX, NUL, COM1-9, LPT1-9
+- Removing trailing spaces and periods
+- Limiting filenames to 255 characters
+- Removing control characters
+
+Since Windows has the strictest rules, files renamed by CrossRename will work on Linux and macOS without issues.
+
+`back to introduction  <introduction_>`__
+
 Why did I build this?
 ---------------------
-
-.. warning::
-   I'm no longer dual booting. I'm using Windows 11 now. I do have WSL2 and that's what I use for testing.
-   I don't know if there'll be any difference in the way the tool works on a native Linux system.
 
 So I was dual-booting Windows 10 and Lubuntu 22.04, and one day I'm trying to move some files between the two systems.
 Five files just wouldn't copy over because of what I later found out were the differences in Windows and Linux's file
 naming rules.
 
 That got me thinking because I'd already built a Python package that had to deal with some file creation and renaming (
-It's called `FicImage <https://github.com/Jemeni11/ficimage>`__ please check it out 🫶) before, so I had an idea or two
+It's called `FicImage <https://github.com/Jemeni11/ficimage>`__, please check it out 🫶) before, so I had an idea or two
 about how to go about this.
 
 Long story short, I got annoyed enough to build CrossRename. Now I don't have to deal with file naming headaches when
 switching between systems.
+
+.. note::
+   I'm no longer dual booting. I'm using Windows 11 now. I do have WSL2 and that's what I use for testing.
+   I don't know if there'll be any difference in the way the tool works on a native Linux system.
+   
+   macOS support is theoretical but should work since the tool uses the most restrictive ruleset (Windows).
+   
+   If you test on macOS, please report any issues!
 
 `back to introduction  <introduction_>`__
 
 Contributing
 ------------
 
-Contributions are welcome! If you'd like to improve CrossRename or add support for
-other operating systems (like macOS), please feel free to submit a pull request.
+Contributions are welcome! If you'd like to improve CrossRename please feel free to submit a pull request.
+
+**Especially welcome:**
+
+- macOS/APFS testing and feedback (currently untested on real macOS hardware)
+- Linux testing and feedback (on native linux)
+- Edge case handling for Unicode normalization differences
+- Performance improvements for large directory trees
+- Other Operating Systems
+- Any other thing I forgot to list here
 
 `back to introduction  <introduction_>`__
 

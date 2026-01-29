@@ -7,7 +7,7 @@
 <h3 align="center">CrossRename</h3>
 
   <p align="center">
-    Harmonize file names for Linux and Windows.
+    Harmonize file names for Linux, Windows, and macOS.
     <br />
     <a href="https://github.com/Jemeni11/CrossRename"><strong>Explore the repo »</strong></a>
     <br />
@@ -19,9 +19,12 @@ Table of Contents
 - [Introduction](#introduction)
 - [Features](#features)
 - [Installation](#installation)
+  - [From PyPI (Using PIP)](#from-pypi-using-pip)
 - [Usage](#usage)
-    - [Examples](#examples)
-    - [Safety First](#safety-first)
+  - [Examples](#examples)
+  - [Unicode Alternatives Mode](#unicode-alternatives-mode)
+  - [Safety First](#safety-first)
+- [Platform Compatibility](#platform-compatibility)
 - [Why did I build this?](#why-did-i-build-this)
 - [Contributing](#contributing)
 - [Wait a minute, who are you?](#wait-a-minute-who-are-you)
@@ -30,17 +33,17 @@ Table of Contents
 
 ## Introduction
 
-CrossRename is a command-line tool designed to harmonize file and directory names across Linux and Windows systems.
-It ensures that your file names are compatible with both operating systems, eliminating naming conflicts
+CrossRename is a command-line tool designed to harmonize file and directory names across Linux, Windows, and macOS systems.
+It ensures that your file names are compatible with all three operating systems, eliminating naming conflicts
 when transferring files between different environments.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Features
 
-- Sanitizes file names to be Windows-compatible (and thus Linux-compatible)
-- **NEW:** Option to replace forbidden characters with Unicode lookalikes instead of removing them
-- **NEW:** Optionally renames directories to be cross-platform compatible
+- Sanitizes file names to be Windows-compatible (and thus Linux-compatible and macOS-compatible)
+- Option to replace forbidden characters with Unicode lookalikes instead of removing them
+- Optionally renames directories to be cross-platform compatible
 - Handles both individual files and entire directories
 - Supports recursive renaming of files in subdirectories
 - Preserves file extensions, including compound extensions like .tar.gz
@@ -55,18 +58,20 @@ when transferring files between different environments.
 
 ### From PyPI (Using PIP)
 
-```
+```bash
 pip install CrossRename
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+Other package managers coming soon.
+
 ## Usage
 
-```
+```bash
 usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [-a] [--force] [--credits]
 
-CrossRename: Harmonize file and directory names for Linux and Windows.
+CrossRename: Harmonize file and directory names for Linux, Windows and macOS.
 
 options:
   -h, --help                  show this help message and exit
@@ -87,54 +92,55 @@ options:
 
 Rename a single file:
 
-```
+```bash
 crossrename -p /path/to/file.txt
 ```
 
 Rename all files in a directory (and its subdirectories):
 
-```
+```bash
 crossrename -p /path/to/directory -r
 ```
 
 Rename all files AND directories recursively:
 
-```
+```bash
 crossrename -p /path/to/directory -r -D
 ```
 
 Rename a single directory:
 
-```
+```bash
 crossrename -p /path/to/problematic_directory -D
 ```
 
 Perform a dry run to preview renaming changes without executing them:
 
-```
+```bash
 crossrename -p /path/to/directory -r -D -d
 ```
 
 Skip safety prompts for automated scripts:
 
-```
+```bash
 crossrename -p /path/to/directory -r -D --force
 ```
 
 Use [Unicode alternatives](#unicode-alternatives-mode) instead of removing characters:
-```
+
+```bash
 crossrename -p /path/to/file.txt -a
 ```
 
 Check for an update:
 
-```
+```bash
 crossrename -u
 ```
 
 Show credits and project information:
 
-```
+```bash
 crossrename --credits
 ```
 
@@ -177,14 +183,16 @@ CrossRename will show interactive safety warnings before making any changes to h
 However, it's strongly recommended to:
 
 1. **Run a dry run first** to preview what will be changed:
-   ```
+
+   ```bash
    crossrename -p /your/path -r -D -d
    ```
 
 2. **Backup your data** before running the tool on important files
 
 3. **Use `--force` flag** for automation in CI/CD pipelines:
-   ```
+
+   ```bash
    crossrename -p /build/output -r -D --force
    ```
 
@@ -193,12 +201,28 @@ applications might reference.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Why did I build this?
+## Platform Compatibility
 
-> [!WARNING]
->
-> I'm no longer dual booting. I'm using Windows 11 now. I do have WSL2 and that's what I use for testing.
-> I don't know if there'll be any difference in the way the tool works on a native Linux system.
+CrossRename works on:
+
+- **Windows** (NTFS, FAT32, exFAT)
+- **Linux** (ext4, ext3, btrfs, xfs, etc.)
+- **macOS** (APFS, HFS+)
+
+The tool sanitizes filenames to be compatible with the *most restrictive* filesystem (Windows),
+ensuring files work everywhere. This means:
+
+- Removing Windows-forbidden characters: `< > : " / \ | ? *`
+- Handling Windows reserved names: CON, PRN, AUX, NUL, COM1-9, LPT1-9
+- Removing trailing spaces and periods
+- Limiting filenames to 255 characters
+- Removing control characters
+
+Since Windows has the strictest rules, files renamed by CrossRename will work on Linux and macOS without issues.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Why did I build this?
 
 So I was dual-booting Windows 10 and Lubuntu 22.04, and one day I'm trying to move some files between the two systems.
 Five files just wouldn't copy over because of what I later found out were the differences in Windows and Linux's file
@@ -211,12 +235,28 @@ about how to go about this.
 Long story short, I got annoyed enough to build CrossRename. Now I don't have to deal with file naming headaches when
 switching between systems.
 
+> [!NOTE]
+>
+> I'm no longer dual booting. I'm using Windows 11 now. I do have WSL2 and that's what I use for testing. I don't know if there'll be any difference in the way the tool works on a native Linux system.
+>
+> macOS support is theoretical but should work since the tool uses the most restrictive ruleset (Windows).
+>
+> If you test on macOS, please report any issues!
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Contributing
 
-Contributions are welcome! If you'd like to improve CrossRename or add support for
-other operating systems (like macOS), please feel free to submit a pull request.
+Contributions are welcome! If you'd like to improve CrossRename please feel free to submit a pull request.
+
+**Especially welcome:**
+
+- macOS/APFS testing and feedback (currently untested on real macOS hardware)
+- Linux testing and feedback (on native linux)
+- Edge case handling for Unicode normalization differences
+- Performance improvements for large directory trees
+- Other Operating Systems
+- Any other thing I forgot to list here
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -244,4 +284,3 @@ You can find me on various platforms:
 [Changelog](/CHANGELOG.md)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-

@@ -6,10 +6,12 @@ import argparse
 import logging
 from .utils import check_for_update
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s » %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s » %(message)s"
+)
 
 
 def get_extension(filename: str) -> str:
@@ -22,9 +24,9 @@ def get_extension(filename: str) -> str:
     suffixes = path.suffixes
 
     if not suffixes:
-        return ''
+        return ""
 
-    return ''.join(suffixes[-2:]) if len(suffixes) > 1 else suffixes[-1]
+    return "".join(suffixes[-2:]) if len(suffixes) > 1 else suffixes[-1]
 
 
 def sanitize_filename(filename: str, use_alternatives: bool = False) -> str:
@@ -39,40 +41,44 @@ def sanitize_filename(filename: str, use_alternatives: bool = False) -> str:
     # A file name can't contain any of the following characters on Windows: \ / : * ? " < > |
     if use_alternatives:
         # Replace reserved characters
-        sanitized = re.sub(r'\x00', '', filename)
-        sanitized = sanitized.translate(str.maketrans({
-            '\\': '⧵',  # Reverse Solidus Operator U+29F5
-            '/': '∕',  # Division Slash U+2215
-            ':': '∶',  # Ratio U+2236
-            '*': '🞱',  # Bold Five Spoked Asterisk U+1F7B1
-            '?': '﹖',  # Small Question Mark U+FE56
-            '"': 'ʺ',  # Modified Letter Double Prime U+2BA
-            '<': 'ᐸ',  # Canadian Syllabics Pa U+1438
-            '>': 'ᐳ',  # Canadian Syllabics Po U+1433
-            '|': '∣',  # Divides U+2223
-        }))
+        sanitized = re.sub(r"\x00", "", filename)
+        sanitized = sanitized.translate(
+            str.maketrans(
+                {
+                    "\\": "⧵",  # Reverse Solidus Operator U+29F5
+                    "/": "∕",  # Division Slash U+2215
+                    ":": "∶",  # Ratio U+2236
+                    "*": "🞱",  # Bold Five Spoked Asterisk U+1F7B1
+                    "?": "﹖",  # Small Question Mark U+FE56
+                    '"': "ʺ",  # Modified Letter Double Prime U+2BA
+                    "<": "ᐸ",  # Canadian Syllabics Pa U+1438
+                    ">": "ᐳ",  # Canadian Syllabics Po U+1433
+                    "|": "∣",  # Divides U+2223
+                }
+            )
+        )
     else:
         # Remove reserved characters
-        sanitized = re.sub(r'[<>:"/\\|?*\x00]', '', filename)
+        sanitized = re.sub(r'[<>:"/\\|?*\x00]', "", filename)
 
     # Remove control characters
-    sanitized = ''.join(char for char in sanitized if ord(char) > 31)
+    sanitized = "".join(char for char in sanitized if ord(char) > 31)
 
     # Handle reserved names (including those with superscript digits)
-    reserved_names = r'^(CON|PRN|AUX|NUL|COM[0-9¹²³]|LPT[0-9¹²³])($|\..*$)'
+    reserved_names = r"^(CON|PRN|AUX|NUL|COM[0-9¹²³]|LPT[0-9¹²³])($|\..*$)"
     if re.match(reserved_names, sanitized, re.I):
         sanitized = f"_{sanitized}"
 
     # Remove trailing spaces and periods
-    sanitized = sanitized.rstrip(' .')
+    sanitized = sanitized.rstrip(" .")
 
     # Ensure the filename isn't empty after sanitization
     if not sanitized:
-        sanitized = 'unnamed_file'
+        sanitized = "unnamed_file"
 
     # Handle leading period (allowed, but keep it only if it was there originally)
-    if filename.startswith('.') and not sanitized.startswith('.'):
-        sanitized = '.' + sanitized
+    if filename.startswith(".") and not sanitized.startswith("."):
+        sanitized = "." + sanitized
 
     # Truncate filename if it's too long (255-character limit for name+extension)
     max_length = 255
@@ -80,23 +86,52 @@ def sanitize_filename(filename: str, use_alternatives: bool = False) -> str:
         ext = get_extension(sanitized)
         ext_length = len(ext)
         name = sanitized[:-ext_length] if ext else sanitized
-        sanitized = name[:max_length - ext_length] + ext
+        sanitized = name[: max_length - ext_length] + ext
 
     return sanitized
 
 
-def rename_file(file_path: str, dry_run: bool = False, use_alternatives: bool = False) -> None:
+def rename_file(
+    file_path: str, dry_run: bool = False, use_alternatives: bool = False
+) -> None:
     directory, filename = os.path.split(file_path)
     new_filename = sanitize_filename(filename, use_alternatives)
 
     if new_filename != filename:
         new_file_path = os.path.join(directory, new_filename)
+
+        # Check if target already exists (collision prevention)
+        if os.path.exists(new_file_path) and os.path.realpath(
+            file_path
+        ) != os.path.realpath(new_file_path):
+            # Target exists and is a different file - add suffix
+            base_name, ext = os.path.splitext(new_filename)
+            counter = 1
+            while os.path.exists(new_file_path):
+                new_filename = f"{base_name}_{counter}{ext}"
+                new_file_path = os.path.join(directory, new_filename)
+                counter += 1
+            logger.warning(f"Target exists, using: {new_filename}")
+
         if dry_run:
             logger.info(f"[Dry-run] Would rename: {filename} -> {new_filename}")
         else:
             try:
+                # Check if file still exists before rename (TOCTOU mitigation)
+                if not os.path.exists(file_path):
+                    logger.warning(f"File no longer exists, skipping: {filename}")
+                    return
+
                 os.rename(file_path, new_file_path)
                 logger.info(f"Renamed: {filename} -> {new_filename}")
+            except FileNotFoundError:
+                logger.warning(f"File was deleted by another process: {filename}")
+            except PermissionError:
+                logger.error(f"Permission denied for {filename}")
+            except FileExistsError:
+                logger.error(
+                    f"Target file already exists (race condition): {new_filename}"
+                )
             except Exception as e:
                 logger.error(f"Error renaming {filename}: {str(e)}")
     else:
@@ -139,7 +174,9 @@ def collect_directories(directory: str) -> list[str]:
     return sorted(directories, key=lambda x: x.count(os.sep), reverse=True)
 
 
-def rename_directory(dir_path: str, dry_run: bool = False, use_alternatives: bool = False) -> str:
+def rename_directory(
+    dir_path: str, dry_run: bool = False, use_alternatives: bool = False
+) -> str:
     """Rename directory and return the new path"""
     parent_dir, dir_name = os.path.split(dir_path)
     new_dir_name = sanitize_filename(dir_name, use_alternatives)
@@ -147,7 +184,9 @@ def rename_directory(dir_path: str, dry_run: bool = False, use_alternatives: boo
     if new_dir_name != dir_name:
         new_dir_path = os.path.join(parent_dir, new_dir_name)
         if dry_run:
-            logger.info(f"[Dry-run] Would rename directory: {dir_name} -> {new_dir_name}")
+            logger.info(
+                f"[Dry-run] Would rename directory: {dir_name} -> {new_dir_name}"
+            )
             return new_dir_path  # Return what the path would be
         else:
             try:
@@ -162,18 +201,24 @@ def rename_directory(dir_path: str, dry_run: bool = False, use_alternatives: boo
         return dir_path
 
 
-def show_warning(renaming_directories: bool, use_alternatives: bool = False):
+def show_warning(renaming_directories: bool, use_alternatives: bool = False) -> None:
     if renaming_directories:
         print("⚠️ WARNING: File AND directory renaming is enabled!")
         print("   This may rename the target directory itself and/or subdirectories.")
-        print("   Directory renaming will change folder paths and may break external references.")
+        print(
+            "   Directory renaming will change folder paths and may break external references."
+        )
     else:
         print("⚠️ WARNING: File renaming is enabled!")
 
     if use_alternatives:
         print("⚠️ WARNING: Unicode alternatives enabled!")
-        print("   Special characters will be replaced with similar-looking Unicode characters.")
-        print("   These may not display correctly on all systems or in all applications.")
+        print(
+            "   Special characters will be replaced with similar-looking Unicode characters."
+        )
+        print(
+            "   These may not display correctly on all systems or in all applications."
+        )
         print("   Some file managers or legacy systems may have compatibility issues.")
 
     print("  This may break scripts, shortcuts, or other references to these files.")
@@ -181,90 +226,105 @@ def show_warning(renaming_directories: bool, use_alternatives: bool = False):
     print("  Continue? (y/N): ", end="")
 
     response = input().lower().strip()
-    if response != 'y':
+    if response != "y":
         print("Operation cancelled.")
         sys.exit(0)
 
 
-def show_credits():
-    print("🎉 CrossRename - Made by Emmanuel C. Jemeni (@Jemeni11)")
+def show_credits() -> None:
+    print("🎉 CrossRename - Made by @Jemeni11")
     print("\n📖 Why I built this:")
     print("""
-    ⚠️  WARNING: I'm no longer dual booting. I'm using Windows 11 now. I do have WSL2 and that's what I use for testing.
-    I don't know if there'll be any difference in the way the tool works on a native Linux system.
-
     So I was dual-booting Windows 10 and Lubuntu 22.04, and one day I'm trying to move some files between the two systems.
     Five files just wouldn't copy over because of what I later found out were the differences in Windows and Linux's file
     naming rules.
-    
-    That got me thinking because I'd already built a Python package that had to deal with some file creation and renaming. 
-    It's called FicImage (https://github.com/Jemeni11/ficimage), please check it out 🫶! So, I had an idea or two
+
+    That got me thinking because I'd already built a Python package that had to deal with some file creation and renaming (
+    It's called [FicImage](https://github.com/Jemeni11/ficimage), please check it out) before, so I had an idea or two
     about how to go about this.
-    
+
     Long story short, I got annoyed enough to build CrossRename. Now I don't have to deal with file naming headaches when
     switching between systems.
+
+    > WARNING
+    >
+    > I'm no longer dual booting. I'm using Windows 11 now. I do have WSL2 and that's what I use for testing.
+    > I don't know if there'll be any difference in the way the tool works on a native Linux system.
+    >
+    > macOS support is theoretical but should work since the tool uses the most restrictive ruleset (Windows).
+    >
+    > If you test on macOS, please report any issues!
+
+    Thank you
+    ( ͡• ͜ʖ ͡• )
     """)
-    print("\n👨‍💻 Find me at:")
-    print("  • GitHub: https://github.com/Jemeni11")
-    print("  • LinkedIn: https://linkedin.com/in/emmanuel-jemeni")
-    print("  • BlueSky: https://bsky.app/profile/jemeni11.bsky.social")
-    print("  • Twitter/X: https://twitter.com/Jemeni11_")
-    print("\n💖 Support CrossRename:")
-    print("  ⭐ Star the repo: https://github.com/Jemeni11/CrossRename")
-    print("  🔄 Contribute: PRs welcome!")
-    print("  ☕ Buy me a coffee: https://buymeacoffee.com/jemeni11")
-    print("  💰 GitHub Sponsors: https://github.com/sponsors/Jemeni11")
+    print("\nFind me at:")
+    print("  ✦  GitHub: https://github.com/Jemeni11")
+    print("  ✦  LinkedIn: https://linkedin.com/in/emmanuel-jemeni")
+    print("  ✦  BlueSky: https://bsky.app/profile/jemeni11.bsky.social")
+    print("  ✦  Twitter/X: https://twitter.com/Jemeni11_")
+    print("\nSupport CrossRename:")
+    print("  ✦  Star the repo: https://github.com/Jemeni11/CrossRename")
+    print("  ✦  Contribute: PRs and Issues welcome!")
+    print("  ✦  Buy me a coffee: https://buymeacoffee.com/jemeni11")
+    print("  ✦  GitHub Sponsors: https://github.com/sponsors/Jemeni11")
 
 
 def main() -> None:
     try:
         parser = argparse.ArgumentParser(
-            description="CrossRename: Harmonize file and directory names for Linux and Windows.",
-            epilog="Made with ❤️ by Emmanuel Jemeni | Run --credits to learn more & show support"
+            description="CrossRename: Harmonize file and directory names for Linux, Windows and macOS.",
+            epilog="Made with ❤️ by Emmanuel Jemeni | Run --credits to learn more & show support",
         )
-        parser.add_argument("-p", "--path", help="The path to the file or directory to rename.")
+        parser.add_argument(
+            "-p", "--path", help="The path to the file or directory to rename."
+        )
         parser.add_argument(
             "-v",
             "--version",
             help="Prints out the current version and quits.",
-            action='version',
-            version=f"CrossRename Version {__version__}"
+            action="version",
+            version=f"CrossRename Version {__version__}",
         )
         parser.add_argument(
-            "-u", "--update",
+            "-u",
+            "--update",
             help="Check if a new version is available.",
-            action="store_true"
+            action="store_true",
         )
         parser.add_argument(
             "-r",
             "--recursive",
             help="Rename all files in the directory path given and its subdirectories. When used with -D, also renames subdirectories.",
-            action="store_true"
+            action="store_true",
         )
         parser.add_argument(
-            "-d", "--dry-run",
+            "-d",
+            "--dry-run",
             help="Perform a dry run, logging changes without renaming.",
-            action="store_true"
+            action="store_true",
         )
         parser.add_argument(
-            "-D", "--rename-directories",
+            "-D",
+            "--rename-directories",
             help="Also rename directories to be cross-platform compatible. Use with caution!",
-            action="store_true"
+            action="store_true",
         )
         parser.add_argument(
-            "-a", "--use-alternatives",
+            "-a",
+            "--use-alternatives",
             help="Replace forbidden characters with Unicode lookalikes instead of removing them. May cause display issues on some systems.",
-            action="store_true"
+            action="store_true",
         )
         parser.add_argument(
             "--force",
             help="Skip safety prompts (useful for automated scripts)",
-            action="store_true"
+            action="store_true",
         )
         parser.add_argument(
             "--credits",
             help="Show credits and support information",
-            action="store_true"
+            action="store_true",
         )
 
         args = parser.parse_args()
@@ -286,10 +346,14 @@ def main() -> None:
             if sys.stdout.isatty():
                 show_warning(rename_dirs, use_alternatives)
             else:
-                sys.exit("Error: Renaming requires --force flag in non-interactive mode")
+                sys.exit(
+                    "Error: Renaming requires --force flag in non-interactive mode"
+                )
 
         if path is None:
-            sys.exit("Error: Please provide a path to a file or directory using the --path argument.")
+            sys.exit(
+                "Error: Please provide a path to a file or directory using the --path argument."
+            )
 
         if os.path.isfile(path):
             rename_file(path, dry_run, use_alternatives)
@@ -320,5 +384,5 @@ def main() -> None:
         logger.error(f"An error occurred: {str(e)}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

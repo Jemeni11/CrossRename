@@ -19,6 +19,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [//]: # (- **Security** in case of vulnerabilities.)
 
+## [1.4.0] - 2026-01-29
+
+### Added
+
+- TOCTOU (Time-of-Check to Time-of-Use) race condition mitigations in file renaming operations ([#7](https://github.com/Jemeni11/CrossRename/issues/7))
+- File existence check before rename to prevent errors from concurrent file modifications
+- Collision prevention when target filename already exists (appends counter suffix)
+- Explicit handling for `FileNotFoundError`, `PermissionError`, and `FileExistsError` during rename
+
+### Changed
+
+- Replaced custom `parse_version()` function with `packaging.version.parse` for robust version comparison
+- Added `packaging>=25.0` as a dependency in `pyproject.toml`
+- Code formatting cleanup (consistent double quotes, improved argument layout in argparse)
+- Added return type hints to `show_warning()` and `show_credits()`
+- Updated `.gitignore` with more entries
+- Updated README with macOS support documentation and improved code block formatting
+
 ## [1.3.0] - 2025-09-28
 
 ### Added
@@ -82,6 +100,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2024-10-07
 
 - Released CrossRename
+
+[1.4.0]: https://github.com/Jemeni11/CrossRename/compare/v1.3.0...v1.4.0
 
 [1.3.0]: https://github.com/Jemeni11/CrossRename/compare/v1.2.1...v1.3.0
 
