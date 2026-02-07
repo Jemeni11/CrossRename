@@ -31,7 +31,7 @@ def get_extension(filename: str) -> str:
 
 def sanitize_filename(filename: str, use_alternatives: bool = False) -> str:
     """
-    Sanitizes filename to be Windows-compatible (and thus Linux-compatible)
+    Sanitizes filename to be Windows-compatible (and thus Linux-compatible and macOS-compatible)
 
     :param filename: The original filename to sanitize
     :param use_alternatives: If True, replace forbidden characters with Unicode lookalikes

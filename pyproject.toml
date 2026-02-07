@@ -4,12 +4,12 @@ version = "1.4.0"
 authors = [
     { name = "Emmanuel C. Jemeni", email = "jemenichinonso11@gmail.com" }
 ]
-description = "Harmonize file and directory names for Linux and Windows."
+description = "Harmonize file and directory names for Linux, Windows and macOS."
 readme = "PYPI_README.rst"
 requires-python = ">=3.9"
 license = "MIT"
 license-files = ["LICENSE"]
-keywords = ["files", "folders", "rename", "linux", "windows", "transferring", "filename"]
+keywords = ["files", "folders", "rename", "linux", "windows", "macos", "transferring", "filename"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",

@@ -7,7 +7,7 @@
 <h3 align="center">CrossRename</h3>
 
   <p align="center">
-    Harmonize file names for Linux, Windows, and macOS.
+    Harmonize file and directory names for Linux, Windows, and macOS.
     <br />
     <a href="https://github.com/Jemeni11/CrossRename"><strong>Explore the repo »</strong></a>
     <br />
@@ -193,7 +193,7 @@ However, it's strongly recommended to:
 3. **Use `--force` flag** for automation in CI/CD pipelines:
 
    ```bash
-   crossrename -p /build/output -r -D --force
+   crossrename -p /your/path -r -D --force
    ```
 
 Directory renaming is particularly powerful and potentially disruptive since it changes folder paths that other
@@ -205,9 +205,9 @@ applications might reference.
 
 CrossRename works on:
 
-- **Windows** (NTFS, FAT32, exFAT)
-- **Linux** (ext4, ext3, btrfs, xfs, etc.)
-- **macOS** (APFS, HFS+)
+- **Windows**
+- **Linux**
+- **macOS**
 
 The tool sanitizes filenames to be compatible with the *most restrictive* filesystem (Windows),
 ensuring files work everywhere. This means:

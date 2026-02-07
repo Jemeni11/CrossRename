@@ -199,7 +199,7 @@ However, it's strongly recommended to:
 
    .. code-block:: bash
 
-      crossrename -p /build/output -r -D --force
+      crossrename -p /your/path -r -D --force
 
 Directory renaming is particularly powerful and potentially disruptive since it changes folder paths that other
 applications might reference.
@@ -211,9 +211,9 @@ Platform Compatibility
 
 CrossRename works on:
 
-- **Windows** (NTFS, FAT32, exFAT)
-- **Linux** (ext4, ext3, btrfs, xfs, etc.)
-- **macOS** (APFS, HFS+)
+- **Windows**
+- **Linux**
+- **macOS** 
 
 The tool sanitizes filenames to be compatible with the *most restrictive* filesystem (Windows),
 ensuring files work everywhere. This means:
