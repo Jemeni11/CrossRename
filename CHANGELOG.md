@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added return type hints to `show_warning()` and `show_credits()`
 - Updated `.gitignore` with more entries
 - Updated README with macOS support documentation and improved code block formatting
+- Added documentation clarifying that files with Windows-forbidden characters must be fixed from Linux/macOS (or WSL)
 
 ## [1.3.0] - 2025-09-28
 

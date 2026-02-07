@@ -220,6 +220,10 @@ ensuring files work everywhere. This means:
 
 Since Windows has the strictest rules, files renamed by CrossRename will work on Linux and macOS without issues.
 
+> [!IMPORTANT]
+>
+> If files were created on Linux or macOS with Windows-forbidden characters (like `<`, `>`, `:`, etc.), Windows cannot see those characters—the filenames appear mangled or stripped. To fix these files, you must run CrossRename from the originating OS (or WSL for Linux files), not from Windows.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Why did I build this?
