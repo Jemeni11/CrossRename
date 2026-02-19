@@ -72,7 +72,7 @@ Usage
 
 .. code-block:: text
 
-   usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [-a] [--force] [--credits]
+   usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [-a] [--force] [--max-filename-bytes N] [--credits]
 
    CrossRename: Harmonize file and directory names for Linux, Windows and macOS.
 
@@ -86,6 +86,7 @@ Usage
      -D, --rename-directories    Also rename directories to be cross-platform compatible. Use with caution!
      -a, --use-alternatives      Replace forbidden characters with Unicode lookalikes instead of removing them. May cause display issues on some systems.
      --force                     Skip safety prompts (useful for automated scripts)
+     --max-filename-bytes N      Maximum filename length in bytes (default: 255, valid range: 4-255).
      --credits                   Show credits and support information
 
 `back to introduction  <introduction_>`__
@@ -221,7 +222,7 @@ ensuring files work everywhere. This means:
 - Removing Windows-forbidden characters: ``< > : " / \ | ? *``
 - Handling Windows reserved names: CON, PRN, AUX, NUL, COM1-9, LPT1-9
 - Removing trailing spaces and periods
-- Limiting filenames to 255 characters
+- Limiting filenames to 255 bytes (for ext4/btrfs compatibility; configurable via ``--max-filename-bytes``)
 - Removing control characters
 
 Since Windows has the strictest rules, files renamed by CrossRename will work on Linux and macOS without issues.

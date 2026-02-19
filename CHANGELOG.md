@@ -19,6 +19,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [//]: # (- **Security** in case of vulnerabilities.)
 
+## [1.5.0] - 2026-02-19
+
+### Added
+
+- `--max-filename-bytes N` flag to set a custom maximum filename length in bytes (valid range: 4–255, default: 255)
+- Test suite for filename sanitization (`tests/test_sanitize.py`)
+
+### Changed
+
+- Filename truncation is now **byte-aware** instead of character-based ([#8](https://github.com/Jemeni11/CrossRename/issues/8))
+  - ext4/btrfs filesystems limit filenames to 255 **bytes**, not 255 characters
+  - Multi-byte UTF-8 characters (CJK, Cyrillic, emoji) are now correctly accounted for
+  - This is a behavioral change: filenames with non-ASCII characters that previously passed unchanged may now be truncated to fit the byte limit
+- Updated README and PyPI README to clarify the byte-based limit
+
 ## [1.4.0] - 2026-02-07
 
 ### Added
@@ -101,6 +116,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2024-10-07
 
 - Released CrossRename
+
+[1.5.0]: https://github.com/Jemeni11/CrossRename/compare/v1.4.0...v1.5.0
 
 [1.4.0]: https://github.com/Jemeni11/CrossRename/compare/v1.3.0...v1.4.0
 
