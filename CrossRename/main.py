@@ -6,7 +6,7 @@ import argparse
 import logging
 from .utils import check_for_update
 
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -29,13 +29,15 @@ def get_extension(filename: str) -> str:
     return "".join(suffixes[-2:]) if len(suffixes) > 1 else suffixes[-1]
 
 
-def sanitize_filename(filename: str, use_alternatives: bool = False) -> str:
+def sanitize_filename(filename: str, use_alternatives: bool = False, max_bytes: int = 255) -> str:
     """
     Sanitizes filename to be Windows-compatible (and thus Linux-compatible and macOS-compatible)
 
     :param filename: The original filename to sanitize
     :param use_alternatives: If True, replace forbidden characters with Unicode lookalikes
                  instead of removing them. May cause display/compatibility issues.
+    :param max_bytes: Maximum filename length in bytes (default: 255 for ext4/btrfs compatibility).
+                 Multi-byte UTF-8 characters (CJK, emoji, etc.) consume more of this budget.
     :return: The sanitized filename
     """
     # A file name can't contain any of the following characters on Windows: \ / : * ? " < > |
@@ -80,22 +82,26 @@ def sanitize_filename(filename: str, use_alternatives: bool = False) -> str:
     if filename.startswith(".") and not sanitized.startswith("."):
         sanitized = "." + sanitized
 
-    # Truncate filename if it's too long (255-character limit for name+extension)
-    max_length = 255
-    if len(sanitized) > max_length:
+    # Truncate filename if it exceeds the byte limit (default 255 for ext4/btrfs).
+    # We measure bytes because ext4/btrfs limit filenames to 255 bytes, not characters.
+    # Multi-byte UTF-8 chars (CJK, emoji, etc.) consume more of this budget.
+    if len(sanitized.encode("utf-8")) > max_bytes:
         ext = get_extension(sanitized)
-        ext_length = len(ext)
-        name = sanitized[:-ext_length] if ext else sanitized
-        sanitized = name[: max_length - ext_length] + ext
+        ext_bytes = len(ext.encode("utf-8"))
+        name = sanitized[: -len(ext)] if ext else sanitized
+        # Remove characters from the end until the total fits within the byte limit
+        while len(name.encode("utf-8")) + ext_bytes > max_bytes and name:
+            name = name[:-1]
+        sanitized = name + ext
 
     return sanitized
 
 
 def rename_file(
-    file_path: str, dry_run: bool = False, use_alternatives: bool = False
+    file_path: str, dry_run: bool = False, use_alternatives: bool = False, max_bytes: int = 255
 ) -> None:
     directory, filename = os.path.split(file_path)
-    new_filename = sanitize_filename(filename, use_alternatives)
+    new_filename = sanitize_filename(filename, use_alternatives, max_bytes)
 
     if new_filename != filename:
         new_file_path = os.path.join(directory, new_filename)
@@ -175,11 +181,11 @@ def collect_directories(directory: str) -> list[str]:
 
 
 def rename_directory(
-    dir_path: str, dry_run: bool = False, use_alternatives: bool = False
+    dir_path: str, dry_run: bool = False, use_alternatives: bool = False, max_bytes: int = 255
 ) -> str:
     """Rename directory and return the new path"""
     parent_dir, dir_name = os.path.split(dir_path)
-    new_dir_name = sanitize_filename(dir_name, use_alternatives)
+    new_dir_name = sanitize_filename(dir_name, use_alternatives, max_bytes)
 
     if new_dir_name != dir_name:
         new_dir_path = os.path.join(parent_dir, new_dir_name)
@@ -326,6 +332,16 @@ def main() -> None:
             help="Show credits and support information",
             action="store_true",
         )
+        parser.add_argument(
+            "--max-filename-bytes",
+            type=int,
+            default=255,
+            metavar="N",
+            help="Maximum filename length in bytes (default: 255, valid range: 4-255). "
+                 "Filenames exceeding this limit will be truncated. The default of 255 bytes "
+                 "ensures compatibility with Linux filesystems (ext4, btrfs). "
+                 "Multi-byte characters (CJK, Cyrillic, emoji) consume more bytes per character.",
+        )
 
         args = parser.parse_args()
         path = args.path
@@ -333,6 +349,10 @@ def main() -> None:
         dry_run = args.dry_run
         rename_dirs = args.rename_directories
         use_alternatives = args.use_alternatives
+        max_bytes = args.max_filename_bytes
+
+        if not (4 <= max_bytes <= 255):
+            sys.exit("Error: --max-filename-bytes must be between 4 and 255.")
 
         if args.update:
             check_for_update(__version__)
@@ -356,28 +376,28 @@ def main() -> None:
             )
 
         if os.path.isfile(path):
-            rename_file(path, dry_run, use_alternatives)
+            rename_file(path, dry_run, use_alternatives, max_bytes)
         elif os.path.isdir(path):
             if recursive:
                 # First rename directories (deepest first)
                 if rename_dirs:
                     directories = collect_directories(path)
                     for dir_path in directories:
-                        rename_directory(dir_path, dry_run, use_alternatives)
+                        rename_directory(dir_path, dry_run, use_alternatives, max_bytes)
 
                 # Then rename files (using updated paths)
                 file_list = file_search(path)
                 for file_path in file_list:
-                    rename_file(file_path, dry_run, use_alternatives)
+                    rename_file(file_path, dry_run, use_alternatives, max_bytes)
             else:
                 if rename_dirs:
-                    path = rename_directory(path, dry_run, use_alternatives)
+                    path = rename_directory(path, dry_run, use_alternatives, max_bytes)
 
                 # Handle files in the directory
                 for item in os.listdir(path):
                     item_path = os.path.join(path, item)
                     if os.path.isfile(item_path):
-                        rename_file(item_path, dry_run, use_alternatives)
+                        rename_file(item_path, dry_run, use_alternatives, max_bytes)
         else:
             sys.exit(f"Error: {path} is not a valid file or directory")
     except Exception as e:

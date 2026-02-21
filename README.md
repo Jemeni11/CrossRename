@@ -42,6 +42,7 @@ when transferring files between different environments.
 ## Features
 
 - Sanitizes file names to be Windows-compatible (and thus Linux-compatible and macOS-compatible)
+- Byte-aware filename truncation (correctly handles CJK, Cyrillic, emoji, and other multi-byte UTF-8 characters)
 - Option to replace forbidden characters with Unicode lookalikes instead of removing them
 - Optionally renames directories to be cross-platform compatible
 - Handles both individual files and entire directories
@@ -69,7 +70,7 @@ Other package managers coming soon.
 ## Usage
 
 ```bash
-usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [-a] [--force] [--credits]
+usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [-a] [--force] [--max-filename-bytes N] [--credits]
 
 CrossRename: Harmonize file and directory names for Linux, Windows and macOS.
 
@@ -83,6 +84,7 @@ options:
   -D, --rename-directories    Also rename directories to be cross-platform compatible. Use with caution!
   -a, --use-alternatives      Replace forbidden characters with Unicode lookalikes instead of removing them. May cause display issues on some systems.
   --force                     Skip safety prompts (useful for automated scripts)
+  --max-filename-bytes N      Maximum filename length in bytes (default: 255, valid range: 4-255).
   --credits                   Show credits and support information
 ```
 
@@ -142,6 +144,12 @@ Show credits and project information:
 
 ```bash
 crossrename --credits
+```
+
+Limit filename length for Linux filesystems (useful for CJK or emoji-heavy filenames):
+
+```bash
+crossrename -p /path/to/directory -r --max-filename-bytes 255
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -215,8 +223,23 @@ ensuring files work everywhere. This means:
 - Removing Windows-forbidden characters: `< > : " / \ | ? *`
 - Handling Windows reserved names: CON, PRN, AUX, NUL, COM1-9, LPT1-9
 - Removing trailing spaces and periods
-- Limiting filenames to 255 characters
 - Removing control characters
+- Limiting filenames to 255 **bytes** (for ext4/btrfs compatibility; configurable via `--max-filename-bytes`)
+
+> [!NOTE]
+> **Prior to v1.5.0**, CrossRename limited filenames to 255 **characters**, which could still produce
+> filenames that fail on Linux. ext4 and btrfs enforce a 255 **byte** limit, not a character limit.
+> Since non-ASCII characters in UTF-8 occupy more than one byte, the effective character limit is lower:
+>
+> | Script | Bytes per char | Effective limit |
+> | ------ | -------------- | --------------- |
+> | Latin (ASCII) | 1 | ~255 characters |
+> | Cyrillic | 2 | ~127 characters |
+> | CJK (Chinese, Japanese, Korean) | 3 | ~85 characters |
+> | Emoji | 4 | ~63 characters |
+>
+> v1.5.0 fixes this with byte-aware truncation. If you have files that were previously
+> "within the limit" but still fail to copy to a Linux filesystem, re-run CrossRename to truncate them correctly.
 
 Since Windows has the strictest rules, files renamed by CrossRename will work on Linux and macOS without issues.
 
