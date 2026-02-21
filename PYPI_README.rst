@@ -43,6 +43,7 @@ Features
 --------
 
 - Sanitizes file names to be Windows-compatible (and thus Linux-compatible and macOS-compatible)
+- Byte-aware filename truncation (correctly handles CJK, Cyrillic, emoji, and other multi-byte UTF-8 characters)
 - Option to replace forbidden characters with Unicode lookalikes instead of removing them
 - Optionally renames directories to be cross-platform compatible
 - Handles both individual files and entire directories
@@ -148,6 +149,12 @@ Show credits and project information:
 
    crossrename --credits
 
+Limit filename length for Linux filesystems (useful for CJK or emoji-heavy filenames):
+
+.. code-block:: bash
+
+   crossrename -p /path/to/directory -r --max-filename-bytes 255
+
 `back to introduction  <introduction_>`__
 
 
@@ -222,8 +229,35 @@ ensuring files work everywhere. This means:
 - Removing Windows-forbidden characters: ``< > : " / \ | ? *``
 - Handling Windows reserved names: CON, PRN, AUX, NUL, COM1-9, LPT1-9
 - Removing trailing spaces and periods
-- Limiting filenames to 255 bytes (for ext4/btrfs compatibility; configurable via ``--max-filename-bytes``)
 - Removing control characters
+- Limiting filenames to 255 **bytes** (for ext4/btrfs compatibility; configurable via ``--max-filename-bytes``)
+
+.. note::
+   **Prior to v1.5.0**, CrossRename limited filenames to 255 **characters**, which could still produce
+   filenames that fail on Linux. ext4 and btrfs enforce a 255 **byte** limit, not a character limit.
+   Since non-ASCII characters in UTF-8 occupy more than one byte, the effective character limit is lower:
+
+   .. list-table::
+      :header-rows: 1
+
+      * - Script
+        - Bytes per char
+        - Effective limit
+      * - Latin (ASCII)
+        - 1
+        - ~255 characters
+      * - Cyrillic
+        - 2
+        - ~127 characters
+      * - CJK (Chinese, Japanese, Korean)
+        - 3
+        - ~85 characters
+      * - Emoji
+        - 4
+        - ~63 characters
+
+   v1.5.0 fixes this with byte-aware truncation. If you have files that were previously
+   "within the limit" but still fail to copy to a Linux filesystem, re-run CrossRename to truncate them correctly.
 
 Since Windows has the strictest rules, files renamed by CrossRename will work on Linux and macOS without issues.
 
