@@ -18,7 +18,9 @@ def check_for_update(current_version: str):
             print("Run `pip install --upgrade CrossRename` to update.")
         else:
             print(f"You're on the latest version: v{current_version}.")
-            print("♥ Enjoying CrossRename? Check out `crossrename --credits`")
+            print(
+                "Enjoying CrossRename? Have feedback? Send it here: https://tally.so/r/7Rjpgz?project=CrossRename"
+            )
 
     except error.URLError as e:
         print(f"Unable to check for updates: {e}")
