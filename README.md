@@ -86,6 +86,8 @@ options:
   --force                     Skip safety prompts (useful for automated scripts)
   --max-filename-bytes N      Maximum filename length in bytes (default: 255, valid range: 4-255).
   --credits                   Show credits and support information
+
+Made with <3 by Emmanuel Jemeni | Send Feedback: https://tally.so/r/7Rjpgz?project=CrossRename
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -184,7 +186,7 @@ Character mappings:
 
 ### Safety First
 
-> [!WARNING]  
+> [!WARNING]
 > Always run with `--dry-run` first!
 
 CrossRename will show interactive safety warnings before making any changes to help prevent accidental data loss.

@@ -90,6 +90,8 @@ Usage
      --max-filename-bytes N      Maximum filename length in bytes (default: 255, valid range: 4-255).
      --credits                   Show credits and support information
 
+   Made with <3 by Emmanuel Jemeni | Send Feedback: https://tally.so/r/7Rjpgz?project=CrossRename
+
 `back to introduction  <introduction_>`__
 
 Examples
@@ -221,7 +223,7 @@ CrossRename works on:
 
 - **Windows**
 - **Linux**
-- **macOS** 
+- **macOS**
 
 The tool sanitizes filenames to be compatible with the *most restrictive* filesystem (Windows),
 ensuring files work everywhere. This means:
@@ -262,7 +264,7 @@ ensuring files work everywhere. This means:
 Since Windows has the strictest rules, files renamed by CrossRename will work on Linux and macOS without issues.
 
 .. important::
-   If files were created on Linux or macOS with Windows-forbidden characters (like ``<``, ``>``, ``:``, etc.), 
+   If files were created on Linux or macOS with Windows-forbidden characters (like ``<``, ``>``, ``:``, etc.),
    Windows cannot see those characters—the filenames appear mangled or stripped. To fix these files, you must run CrossRename from the originating OS (or WSL for Linux files), not from Windows.
 
 `back to introduction  <introduction_>`__
@@ -284,9 +286,9 @@ switching between systems.
 .. note::
    I'm no longer dual booting. I'm using Windows 11 now. I do have WSL2 and that's what I use for testing.
    I don't know if there'll be any difference in the way the tool works on a native Linux system.
-   
+
    macOS support is theoretical but should work since the tool uses the most restrictive ruleset (Windows).
-   
+
    If you test on macOS, please report any issues!
 
 `back to introduction  <introduction_>`__

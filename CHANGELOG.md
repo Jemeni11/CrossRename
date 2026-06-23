@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved code formatting (line wrapping in argparse help text and long conditionals)
 - Updated `show_credits()` with GitLab profile link and feedback form link, and refined layout
 - Updated `check_for_update()` up-to-date message to point users to the feedback form instead of `--credits`
+- Added feedback form link to `README.md` and `PYPI_README.rst` usage sections
 
 ### Added
 
