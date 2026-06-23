@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [//]: # (- **Security** in case of vulnerabilities.)
 
-## [1.5.1] - 2026-06-23
+## [1.6.0] - 2026-06-23
 
 ### Changed
 
@@ -28,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped minimum required Python from 3.9 to 3.12
 - Updated `packaging` dependency from `>=25.0` to `>=26.2`
 - Updated entry point from `CrossRename.main:main` to `crossrename.main:main`
+- Migrated from `os.path` to `pathlib.Path` across the entire codebase (`os.walk` → `Path.walk()`, `os.rename` → `Path.rename()`, etc.)
+- Refactored function signatures for `rename_file()`, `rename_directory()`, `file_search()`, and `collect_directories()` to use `Path` type hints
+- Improved code formatting (line wrapping in argparse help text and long conditionals)
+- Updated `show_credits()` with GitLab profile link and feedback form link, and refined layout
+- Updated `check_for_update()` up-to-date message to point users to the feedback form instead of `--credits`
 
 ### Added
 
@@ -139,7 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Released CrossRename
 
-[1.5.1]: https://github.com/Jemeni11/CrossRename/compare/v1.5.0...v1.5.1
+[1.6.0]: https://github.com/Jemeni11/CrossRename/compare/v1.5.0...v1.6.0
 
 [1.5.0]: https://github.com/Jemeni11/CrossRename/compare/v1.4.0...v1.5.0
 
