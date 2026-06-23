@@ -1,4 +1,4 @@
-from crossrename.main import get_extension, sanitize_filename
+from crossrename.rename import get_extension, sanitize_filename
 
 
 class TestGetExtension:

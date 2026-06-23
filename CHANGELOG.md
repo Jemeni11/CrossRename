@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored function signatures for `rename_file()`, `rename_directory()`, `file_search()`, and `collect_directories()` to use `Path` type hints
 - Improved code formatting (line wrapping in argparse help text and long conditionals)
 - Updated `show_credits()` with GitLab profile link and feedback form link, and refined layout
+- Extracted core rename logic (`get_extension`, `sanitize_filename`, `rename_file`, `rename_directory`, `file_search`, `collect_directories`) from `main.py` into new `rename.py` module; `main.py` now handles only CLI concerns
 - Updated `check_for_update()` up-to-date message to point users to the feedback form instead of `--credits`
 - Added feedback form link to `README.md` and `PYPI_README.rst` usage sections
 
