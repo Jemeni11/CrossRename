@@ -1,13 +1,12 @@
 import argparse
 import logging
-import os
 import re
 import sys
 from pathlib import Path
 
 from .utils import check_for_update
 
-__version__ = "1.5.1"
+__version__ = "1.6.0"
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s » %(message)s")
@@ -97,24 +96,22 @@ def sanitize_filename(filename: str, use_alternatives: bool = False, max_bytes: 
 
 
 def rename_file(
-    file_path: str, dry_run: bool = False, use_alternatives: bool = False, max_bytes: int = 255
+    file_path: Path, dry_run: bool = False, use_alternatives: bool = False, max_bytes: int = 255
 ) -> None:
-    directory, filename = os.path.split(file_path)
+    directory, filename = file_path.parent, file_path.name
     new_filename = sanitize_filename(filename, use_alternatives, max_bytes)
 
     if new_filename != filename:
-        new_file_path = os.path.join(directory, new_filename)
+        new_file_path = directory / new_filename
 
         # Check if target already exists (collision prevention)
-        if os.path.exists(new_file_path) and os.path.realpath(file_path) != os.path.realpath(
-            new_file_path
-        ):
+        if new_file_path.exists() and Path(file_path).resolve() != new_file_path.resolve():
             # Target exists and is a different file - add suffix
-            base_name, ext = os.path.splitext(new_filename)
+            base_name, ext = Path(new_filename).stem, Path(new_filename).suffix
             counter = 1
-            while os.path.exists(new_file_path):
+            while new_file_path.exists():
                 new_filename = f"{base_name}_{counter}{ext}"
-                new_file_path = os.path.join(directory, new_filename)
+                new_file_path = directory / new_filename
                 counter += 1
             logger.warning(f"Target exists, using: {new_filename}")
 
@@ -123,11 +120,11 @@ def rename_file(
         else:
             try:
                 # Check if file still exists before rename (TOCTOU mitigation)
-                if not os.path.exists(file_path):
+                if not file_path.exists():
                     logger.warning(f"File no longer exists, skipping: {filename}")
                     return
 
-                os.rename(file_path, new_file_path)
+                file_path.rename(new_file_path)
                 logger.info(f"Renamed: {filename} -> {new_filename}")
             except FileNotFoundError:
                 logger.warning(f"File was deleted by another process: {filename}")
@@ -141,12 +138,12 @@ def rename_file(
         logger.info(f"No change needed: {filename}")
 
 
-def file_search(directory: str) -> list[str]:
-    file_list = []
-    visited_paths = set()
+def file_search(directory: str) -> list[Path]:
+    file_list: list[Path] = []
+    visited_paths: set[Path] = set()
 
-    for root, _, files in os.walk(directory, followlinks=False):
-        real_root = os.path.realpath(root)
+    for root, _, files in Path(directory).walk(follow_symlinks=False):
+        real_root = root.resolve()
 
         if real_root in visited_paths:
             logger.warning(f"Skipping recursive symlink in {root}")
@@ -155,8 +152,8 @@ def file_search(directory: str) -> list[str]:
         visited_paths.add(real_root)
 
         for file in files:
-            file_path = os.path.join(root, file)
-            if os.path.islink(file_path):
+            file_path = root / file
+            if file_path.is_symlink():
                 logger.info(f"Skipping symlink: {file_path}")
                 continue
             file_list.append(file_path)
@@ -164,33 +161,33 @@ def file_search(directory: str) -> list[str]:
     return file_list
 
 
-def collect_directories(directory: str) -> list[str]:
+def collect_directories(directory: str) -> list[Path]:
     """Collect all directories, sorted by depth (deepest first)"""
-    directories = []
-    for root, dirs, _ in os.walk(directory, followlinks=False):
+    directories: list[Path] = []
+    for root, dirs, _ in Path(directory).walk(follow_symlinks=False):
         for dir_name in dirs:
-            dir_path = os.path.join(root, dir_name)
-            if not os.path.islink(dir_path):  # Skip symlinked directories
+            dir_path = root / dir_name
+            if not dir_path.is_symlink():  # Skip symlinked directories
                 directories.append(dir_path)
 
     # Sort by depth (deepest first) to avoid path breakage
-    return sorted(directories, key=lambda x: x.count(os.sep), reverse=True)
+    return sorted(directories, key=lambda x: len(x.parts), reverse=True)
 
 
 def rename_directory(
-    dir_path: str, dry_run: bool = False, use_alternatives: bool = False, max_bytes: int = 255
-) -> str:
+    dir_path: Path, dry_run: bool = False, use_alternatives: bool = False, max_bytes: int = 255
+) -> Path:
     """Rename directory and return the new path"""
-    parent_dir, dir_name = os.path.split(dir_path)
+    parent_dir, dir_name = dir_path.parent, dir_path.name
     new_dir_name = sanitize_filename(dir_name, use_alternatives, max_bytes)
 
     if new_dir_name != dir_name:
-        new_dir_path = os.path.join(parent_dir, new_dir_name)
+        new_dir_path = parent_dir / new_dir_name
         if dry_run:
             logger.info(f"[Dry-run] Would rename directory: {dir_name} -> {new_dir_name}")
             return new_dir_path  # Return what the path would be
         try:
-            os.rename(dir_path, new_dir_path)
+            dir_path.rename(new_dir_path)
             logger.info(f"Renamed directory: {dir_name} -> {new_dir_name}")
             return new_dir_path
         except Exception as e:
@@ -229,35 +226,34 @@ def show_credits() -> None:
     print("🎉 CrossRename - Made by @Jemeni11")
     print("\n📖 Why I built this:")
     print("""
-    So I was dual-booting Windows 10 and Lubuntu 22.04, and one day I'm trying to move some files between the two systems.
-    Five files just wouldn't copy over because of what I later found out were the differences in Windows and Linux's file
-    naming rules.
+    I was dual-booting Windows 10 and Lubuntu 22.04, and one day I'm trying to move some files
+    between the two systems. Five files just wouldn't copy over because of what I later found out
+    were the differences in Windows and Linux's file naming rules.
 
-    That got me thinking because I'd already built a Python package that had to deal with some file creation and renaming (
-    It's called [FicImage](https://github.com/Jemeni11/ficimage), please check it out) before, so I had an idea or two
-    about how to go about this.
+    That got me thinking because I'd already built a Python package that had to deal with some file
+    creation and renaming (It's called [FicImage](https://github.com/Jemeni11/ficimage), please
+    check it out) before, so I had an idea or two about how to go about this.
 
-    Long story short, I got annoyed enough to build CrossRename. Now I don't have to deal with file naming headaches when
-    switching between systems.
+    Long story short, I got annoyed enough to build CrossRename. Now I don't have to deal with file
+    naming headaches when switching between systems.
 
-    > WARNING
-    >
-    > I'm no longer dual booting. I'm using Windows 11 now. I do have WSL2 and that's what I use for testing.
-    > I don't know if there'll be any difference in the way the tool works on a native Linux system.
-    >
-    > macOS support is theoretical but should work since the tool uses the most restrictive ruleset (Windows).
-    >
-    > If you test on macOS, please report any issues!
+    WARNING
+
+    I'm no longer dual booting. I'm using Windows 11 now. I do have WSL2 and that's what I use for
+    testing. I don't know if there'll be any difference in the way the tool works on a native
+    Linux system. macOS support is theoretical but should work since the tool uses the most
+    restrictive ruleset (Windows). If you test on macOS, please report any issues!
 
     Thank you
-    ( ͡• ͜ʖ ͡• )
     """)
-    print("\nFind me at:")
+    print("Find me at:")
     print("  ✦  GitHub: https://github.com/Jemeni11")
+    print("  ✦  GitLab: https://gitlab.com/Jemeni11")
     print("  ✦  LinkedIn: https://linkedin.com/in/emmanuel-jemeni")
     print("  ✦  BlueSky: https://bsky.app/profile/jemeni11.bsky.social")
     print("  ✦  Twitter/X: https://twitter.com/Jemeni11_")
     print("\nSupport CrossRename:")
+    print("  ✦  Send Feedback: https://tally.so/r/7Rjpgz?project=CrossRename")
     print("  ✦  Star the repo: https://github.com/Jemeni11/CrossRename")
     print("  ✦  Contribute: PRs and Issues welcome!")
     print("  ✦  Buy me a coffee: https://buymeacoffee.com/jemeni11")
@@ -267,8 +263,10 @@ def show_credits() -> None:
 def main() -> None:
     try:
         parser = argparse.ArgumentParser(
-            description="CrossRename: Harmonize file and directory names for Linux, Windows and macOS.",
-            epilog="Made with ❤️ by Emmanuel Jemeni | Run --credits to learn more & show support",
+            description="Harmonize file and directory names for Linux, Windows and \
+             macOS.",
+            epilog="Made with <3 by Emmanuel Jemeni | \
+                Send Feedback: https://tally.so/r/7Rjpgz?project=CrossRename",
         )
         parser.add_argument("-p", "--path", help="The path to the file or directory to rename.")
         parser.add_argument(
@@ -287,7 +285,8 @@ def main() -> None:
         parser.add_argument(
             "-r",
             "--recursive",
-            help="Rename all files in the directory path given and its subdirectories. When used with -D, also renames subdirectories.",
+            help="Rename all files in the directory path given and its subdirectories. When used\
+             with -D, also renames subdirectories.",
             action="store_true",
         )
         parser.add_argument(
@@ -305,7 +304,8 @@ def main() -> None:
         parser.add_argument(
             "-a",
             "--use-alternatives",
-            help="Replace forbidden characters with Unicode lookalikes instead of removing them. May cause display issues on some systems.",
+            help="Replace forbidden characters with Unicode lookalikes instead of removing them.\
+                 May cause display issues on some systems.",
             action="store_true",
         )
         parser.add_argument(
@@ -359,29 +359,28 @@ def main() -> None:
                 "Error: Please provide a path to a file or directory using the --path argument."
             )
 
-        if os.path.isfile(path):
-            rename_file(path, dry_run, use_alternatives, max_bytes)
-        elif os.path.isdir(path):
+        if Path(path).is_file():
+            rename_file(Path(path), dry_run, use_alternatives, max_bytes)
+        elif Path(path).is_dir():
             if recursive:
                 # First rename directories (deepest first)
                 if rename_dirs:
-                    directories = collect_directories(path)
+                    directories: list[Path] = collect_directories(path)
                     for dir_path in directories:
                         rename_directory(dir_path, dry_run, use_alternatives, max_bytes)
 
                 # Then rename files (using updated paths)
-                file_list = file_search(path)
+                file_list: list[Path] = file_search(path)
                 for file_path in file_list:
                     rename_file(file_path, dry_run, use_alternatives, max_bytes)
             else:
                 if rename_dirs:
-                    path = rename_directory(path, dry_run, use_alternatives, max_bytes)
+                    path = rename_directory(Path(path), dry_run, use_alternatives, max_bytes)
 
                 # Handle files in the directory
-                for item in os.listdir(path):
-                    item_path = os.path.join(path, item)
-                    if os.path.isfile(item_path):
-                        rename_file(item_path, dry_run, use_alternatives, max_bytes)
+                for item in Path(path).iterdir():
+                    if item.is_file():
+                        rename_file(item, dry_run, use_alternatives, max_bytes)
         else:
             sys.exit(f"Error: {path} is not a valid file or directory")
     except Exception as e:
