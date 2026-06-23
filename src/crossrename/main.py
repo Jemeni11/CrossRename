@@ -1,17 +1,16 @@
-import os
-import sys
-import re
-from pathlib import Path
 import argparse
 import logging
+import os
+import re
+import sys
+from pathlib import Path
+
 from .utils import check_for_update
 
-__version__ = "1.5.0"
+__version__ = "1.5.1"
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s » %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s » %(message)s")
 
 
 def get_extension(filename: str) -> str:
@@ -68,7 +67,7 @@ def sanitize_filename(filename: str, use_alternatives: bool = False, max_bytes: 
 
     # Handle reserved names (including those with superscript digits)
     reserved_names = r"^(CON|PRN|AUX|NUL|COM[0-9¹²³]|LPT[0-9¹²³])($|\..*$)"
-    if re.match(reserved_names, sanitized, re.I):
+    if re.match(reserved_names, sanitized, re.IGNORECASE):
         sanitized = f"_{sanitized}"
 
     # Remove trailing spaces and periods
@@ -107,9 +106,9 @@ def rename_file(
         new_file_path = os.path.join(directory, new_filename)
 
         # Check if target already exists (collision prevention)
-        if os.path.exists(new_file_path) and os.path.realpath(
-            file_path
-        ) != os.path.realpath(new_file_path):
+        if os.path.exists(new_file_path) and os.path.realpath(file_path) != os.path.realpath(
+            new_file_path
+        ):
             # Target exists and is a different file - add suffix
             base_name, ext = os.path.splitext(new_filename)
             counter = 1
@@ -135,9 +134,7 @@ def rename_file(
             except PermissionError:
                 logger.error(f"Permission denied for {filename}")
             except FileExistsError:
-                logger.error(
-                    f"Target file already exists (race condition): {new_filename}"
-                )
+                logger.error(f"Target file already exists (race condition): {new_filename}")
             except Exception as e:
                 logger.error(f"Error renaming {filename}: {str(e)}")
     else:
@@ -190,18 +187,15 @@ def rename_directory(
     if new_dir_name != dir_name:
         new_dir_path = os.path.join(parent_dir, new_dir_name)
         if dry_run:
-            logger.info(
-                f"[Dry-run] Would rename directory: {dir_name} -> {new_dir_name}"
-            )
+            logger.info(f"[Dry-run] Would rename directory: {dir_name} -> {new_dir_name}")
             return new_dir_path  # Return what the path would be
-        else:
-            try:
-                os.rename(dir_path, new_dir_path)
-                logger.info(f"Renamed directory: {dir_name} -> {new_dir_name}")
-                return new_dir_path
-            except Exception as e:
-                logger.error(f"Error renaming directory {dir_name}: {str(e)}")
-                return dir_path  # Return original path if rename failed
+        try:
+            os.rename(dir_path, new_dir_path)
+            logger.info(f"Renamed directory: {dir_name} -> {new_dir_name}")
+            return new_dir_path
+        except Exception as e:
+            logger.error(f"Error renaming directory {dir_name}: {str(e)}")
+            return dir_path  # Return original path if rename failed
     else:
         logger.info(f"No change needed for directory: {dir_name}")
         return dir_path
@@ -211,20 +205,14 @@ def show_warning(renaming_directories: bool, use_alternatives: bool = False) -> 
     if renaming_directories:
         print("⚠️ WARNING: File AND directory renaming is enabled!")
         print("   This may rename the target directory itself and/or subdirectories.")
-        print(
-            "   Directory renaming will change folder paths and may break external references."
-        )
+        print("   Directory renaming will change folder paths and may break external references.")
     else:
         print("⚠️ WARNING: File renaming is enabled!")
 
     if use_alternatives:
         print("⚠️ WARNING: Unicode alternatives enabled!")
-        print(
-            "   Special characters will be replaced with similar-looking Unicode characters."
-        )
-        print(
-            "   These may not display correctly on all systems or in all applications."
-        )
+        print("   Special characters will be replaced with similar-looking Unicode characters.")
+        print("   These may not display correctly on all systems or in all applications.")
         print("   Some file managers or legacy systems may have compatibility issues.")
 
     print("  This may break scripts, shortcuts, or other references to these files.")
@@ -282,9 +270,7 @@ def main() -> None:
             description="CrossRename: Harmonize file and directory names for Linux, Windows and macOS.",
             epilog="Made with ❤️ by Emmanuel Jemeni | Run --credits to learn more & show support",
         )
-        parser.add_argument(
-            "-p", "--path", help="The path to the file or directory to rename."
-        )
+        parser.add_argument("-p", "--path", help="The path to the file or directory to rename.")
         parser.add_argument(
             "-v",
             "--version",
@@ -338,9 +324,9 @@ def main() -> None:
             default=255,
             metavar="N",
             help="Maximum filename length in bytes (default: 255, valid range: 4-255). "
-                 "Filenames exceeding this limit will be truncated. The default of 255 bytes "
-                 "ensures compatibility with Linux filesystems (ext4, btrfs). "
-                 "Multi-byte characters (CJK, Cyrillic, emoji) consume more bytes per character.",
+            "Filenames exceeding this limit will be truncated. The default of 255 bytes "
+            "ensures compatibility with Linux filesystems (ext4, btrfs). "
+            "Multi-byte characters (CJK, Cyrillic, emoji) consume more bytes per character.",
         )
 
         args = parser.parse_args()
@@ -366,9 +352,7 @@ def main() -> None:
             if sys.stdout.isatty():
                 show_warning(rename_dirs, use_alternatives)
             else:
-                sys.exit(
-                    "Error: Renaming requires --force flag in non-interactive mode"
-                )
+                sys.exit("Error: Renaming requires --force flag in non-interactive mode")
 
         if path is None:
             sys.exit(

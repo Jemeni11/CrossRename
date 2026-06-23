@@ -1,6 +1,8 @@
-from urllib import request, error
-from packaging.version import parse
 from json import load
+from typing import Any
+from urllib import error, request
+
+from packaging.version import parse
 
 
 def check_for_update(current_version: str):
@@ -8,8 +10,8 @@ def check_for_update(current_version: str):
     try:
         url = "https://pypi.org/pypi/CrossRename/json"
         with request.urlopen(url, timeout=5) as response:
-            data = load(response)
-            latest_version = data["info"]["version"]
+            data: Any = load(fp=response)
+            latest_version: Any = data["info"]["version"]
 
         if parse(latest_version) > parse(current_version):
             print(f"Update available: v{latest_version}. You're on v{current_version}.")
