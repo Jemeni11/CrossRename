@@ -1,7 +1,7 @@
 CrossRename
 ===========
 
-.. image:: https://github.com/Jemeni11/CrossRename/blob/master/logo.png?raw=true
+.. image:: https://github.com/Jemeni11/CrossRename/blob/main/logo.png?raw=true
    :alt: CrossRename Logo
    :width: 128px
    :height: 128px
