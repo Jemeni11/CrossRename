@@ -43,6 +43,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.python-version` file pinning development to Python 3.14
 - `py.typed` marker file for PEP 561 type information support
 - Dev dependency groups (`ruff`, `ty`) with comprehensive ruff lint rule selection
+- `-q`/`--quiet` flag to suppress "No change needed" and other informational messages
+  (e.g., symlink skips) in recursive mode, so only files/directories that are actually
+  renamed appear in output ([#10](https://github.com/Jemeni11/CrossRename/issues/10))
 
 ### Removed
 

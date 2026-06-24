@@ -89,7 +89,11 @@ def sanitize_filename(filename: str, use_alternatives: bool = False, max_bytes: 
 
 
 def rename_file(
-    file_path: Path, dry_run: bool = False, use_alternatives: bool = False, max_bytes: int = 255
+    file_path: Path,
+    dry_run: bool = False,
+    use_alternatives: bool = False,
+    max_bytes: int = 255,
+    quiet: bool = False,
 ) -> None:
     directory, filename = file_path.parent, file_path.name
     new_filename = sanitize_filename(filename, use_alternatives, max_bytes)
@@ -127,11 +131,11 @@ def rename_file(
                 logger.error(f"Target file already exists (race condition): {new_filename}")
             except Exception as e:
                 logger.error(f"Error renaming {filename}: {str(e)}")
-    else:
+    elif not quiet:
         logger.info(f"No change needed: {filename}")
 
 
-def file_search(directory: str) -> list[Path]:
+def file_search(directory: str, quiet: bool = False) -> list[Path]:
     file_list: list[Path] = []
     visited_paths: set[Path] = set()
 
@@ -147,7 +151,8 @@ def file_search(directory: str) -> list[Path]:
         for file in files:
             file_path = root / file
             if file_path.is_symlink():
-                logger.info(f"Skipping symlink: {file_path}")
+                if not quiet:
+                    logger.info(f"Skipping symlink: {file_path}")
                 continue
             file_list.append(file_path)
 
@@ -168,7 +173,11 @@ def collect_directories(directory: str) -> list[Path]:
 
 
 def rename_directory(
-    dir_path: Path, dry_run: bool = False, use_alternatives: bool = False, max_bytes: int = 255
+    dir_path: Path,
+    dry_run: bool = False,
+    use_alternatives: bool = False,
+    max_bytes: int = 255,
+    quiet: bool = False,
 ) -> Path:
     """Rename directory and return the new path"""
     parent_dir, dir_name = dir_path.parent, dir_path.name
@@ -187,5 +196,6 @@ def rename_directory(
             logger.error(f"Error renaming directory {dir_name}: {str(e)}")
             return dir_path  # Return original path if rename failed
     else:
-        logger.info(f"No change needed for directory: {dir_name}")
+        if not quiet:
+            logger.info(f"No change needed for directory: {dir_name}")
         return dir_path
