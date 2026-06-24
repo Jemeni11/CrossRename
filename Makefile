@@ -34,7 +34,7 @@ format-check:
 # ── Type Check ────────────────────────────────────────────────────────
 
 typecheck:
-	uv run ty src/
+	uv run ty check src/
 
 # ── Combined ──────────────────────────────────────────────────────────
 
