@@ -33,7 +33,7 @@ crossrename = "crossrename.main:main"
 [project.urls]
 "Homepage" = "https://github.com/Jemeni11/CrossRename"
 "Bug Tracker" = "https://github.com/Jemeni11/CrossRename/issues"
-"Changelog" = "https://github.com/Jemeni11/CrossRename/blob/master/CHANGELOG.md"
+"Changelog" = "https://github.com/Jemeni11/CrossRename/blob/main/CHANGELOG.md"
 "Funding" = "https://buymeacoffee.com/jemeni11"
 
 [build-system]
@@ -41,11 +41,7 @@ requires = ["uv_build>=0.8.24,<0.9.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
-dev = [
-    "build>=1.5.0",
-    "ruff>=0.15.18",
-    "ty>=0.0.52",
-]
+dev = ["build>=1.5.0", "ruff>=0.15.18", "ty>=0.0.52"]
 
 [tool.ruff]
 line-length = 100
