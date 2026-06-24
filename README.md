@@ -70,9 +70,9 @@ Other package managers coming soon.
 ## Usage
 
 ```bash
-usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [-a] [--force] [--max-filename-bytes N] [--credits]
+usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [-a] [--force] [-q] [--credits] [--max-filename-bytes N]
 
-CrossRename: Harmonize file and directory names for Linux, Windows and macOS.
+Harmonize file and directory names for Linux, Windows and macOS.
 
 options:
   -h, --help                  show this help message and exit
@@ -84,8 +84,9 @@ options:
   -D, --rename-directories    Also rename directories to be cross-platform compatible. Use with caution!
   -a, --use-alternatives      Replace forbidden characters with Unicode lookalikes instead of removing them. May cause display issues on some systems.
   --force                     Skip safety prompts (useful for automated scripts)
-  --max-filename-bytes N      Maximum filename length in bytes (default: 255, valid range: 4-255).
+  -q, --quiet                 Suppress 'No change needed' and other informational messages. Only shows files that are actually renamed, plus warnings and errors.
   --credits                   Show credits and support information
+  --max-filename-bytes N      Maximum filename length in bytes (default: 255, valid range: 16-255). Filenames exceeding this limit will be truncated. The default of 255 bytes ensures compatibility with Linux filesystems (ext4, btrfs). Multi-byte characters (CJK, Cyrillic, emoji) consume more bytes per character.
 
 Made with <3 by Emmanuel Jemeni | Send Feedback: https://tally.so/r/7Rjpgz?project=CrossRename
 ```
@@ -154,6 +155,13 @@ Limit filename length for Linux filesystems (useful for CJK or emoji-heavy filen
 crossrename -p /path/to/directory -r --max-filename-bytes 255
 ```
 
+Suppress informational messages to see only files that will be renamed:
+
+```bash
+crossrename -p /path/to/directory -r -d -q
+# Only shows [Dry-run] Would rename: ... lines and skips "No change needed" noise
+```
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Unicode Alternatives Mode
@@ -180,7 +188,6 @@ Character mappings:
 > [!WARNING]
 >
 > These Unicode characters may not display correctly on all systems, fonts, or applications.
-
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
