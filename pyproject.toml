@@ -41,7 +41,11 @@ requires = ["uv_build>=0.8.24,<0.9.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
-dev = ["ruff>=0.15.18", "ty>=0.0.52"]
+dev = [
+    "build>=1.5.0",
+    "ruff>=0.15.18",
+    "ty>=0.0.52",
+]
 
 [tool.ruff]
 line-length = 100
