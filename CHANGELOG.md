@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extracted core rename logic (`get_extension`, `sanitize_filename`, `rename_file`, `rename_directory`, `file_search`, `collect_directories`) from `main.py` into new `rename.py` module; `main.py` now handles only CLI concerns
 - Updated `check_for_update()` up-to-date message to point users to the feedback form instead of `--credits`
 - Added feedback form link to `README.md` and `PYPI_README.rst` usage sections
+- Minimum `--max-filename-bytes` raised from 4 to 16 (the previous floor of 4 was arbitrary and could produce degenerate extension-only filenames)
 
 ### Added
 
@@ -46,6 +47,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `-q`/`--quiet` flag to suppress "No change needed" and other informational messages
   (e.g., symlink skips) in recursive mode, so only files/directories that are actually
   renamed appear in output ([#10](https://github.com/Jemeni11/CrossRename/issues/10))
+- `Makefile` with targets for `test`, `lint`, `format`, `typecheck`, `check`, `all`, and `clean`
+- Quiet mode test suite (`TestQuietMode`) — 9 tests covering file and directory renaming with
+  `-q`/`--quiet`, dry-run + quiet, and log suppression; existing tests converted to `unittest.TestCase`
+
+### Fixed
+
+- Truncation now explicitly returns extension-only when the extension alone exceeds `--max-filename-bytes`, rather than relying on an accidental loop guard.
 
 ### Removed
 
