@@ -144,7 +144,7 @@ def main() -> None:
             type=int,
             default=255,
             metavar="N",
-            help="Maximum filename length in bytes (default: 255, valid range: 4-255). "
+            help="Maximum filename length in bytes (default: 255, valid range: 16-255). "
             "Filenames exceeding this limit will be truncated. The default of 255 bytes "
             "ensures compatibility with Linux filesystems (ext4, btrfs). "
             "Multi-byte characters (CJK, Cyrillic, emoji) consume more bytes per character.",
@@ -159,8 +159,8 @@ def main() -> None:
         max_bytes = args.max_filename_bytes
         quiet = args.quiet
 
-        if not (4 <= max_bytes <= 255):
-            sys.exit("Error: --max-filename-bytes must be between 4 and 255.")
+        if not (16 <= max_bytes <= 255):
+            sys.exit("Error: --max-filename-bytes must be between 16 and 255.")
 
         if args.update:
             check_for_update(__version__)
