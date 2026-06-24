@@ -128,6 +128,13 @@ def main() -> None:
             action="store_true",
         )
         parser.add_argument(
+            "-q",
+            "--quiet",
+            help="Suppress 'No change needed' and other informational messages. "
+            "Only shows files that are actually renamed, plus warnings and errors.",
+            action="store_true",
+        )
+        parser.add_argument(
             "--credits",
             help="Show credits and support information",
             action="store_true",
@@ -137,7 +144,7 @@ def main() -> None:
             type=int,
             default=255,
             metavar="N",
-            help="Maximum filename length in bytes (default: 255, valid range: 4-255). "
+            help="Maximum filename length in bytes (default: 255, valid range: 16-255). "
             "Filenames exceeding this limit will be truncated. The default of 255 bytes "
             "ensures compatibility with Linux filesystems (ext4, btrfs). "
             "Multi-byte characters (CJK, Cyrillic, emoji) consume more bytes per character.",
@@ -150,9 +157,10 @@ def main() -> None:
         rename_dirs = args.rename_directories
         use_alternatives = args.use_alternatives
         max_bytes = args.max_filename_bytes
+        quiet = args.quiet
 
-        if not (4 <= max_bytes <= 255):
-            sys.exit("Error: --max-filename-bytes must be between 4 and 255.")
+        if not (16 <= max_bytes <= 255):
+            sys.exit("Error: --max-filename-bytes must be between 16 and 255.")
 
         if args.update:
             check_for_update(__version__)
@@ -174,27 +182,27 @@ def main() -> None:
             )
 
         if Path(path).is_file():
-            rename_file(Path(path), dry_run, use_alternatives, max_bytes)
+            rename_file(Path(path), dry_run, use_alternatives, max_bytes, quiet)
         elif Path(path).is_dir():
             if recursive:
                 # First rename directories (deepest first)
                 if rename_dirs:
                     directories: list[Path] = collect_directories(path)
                     for dir_path in directories:
-                        rename_directory(dir_path, dry_run, use_alternatives, max_bytes)
+                        rename_directory(dir_path, dry_run, use_alternatives, max_bytes, quiet)
 
                 # Then rename files (using updated paths)
-                file_list: list[Path] = file_search(path)
+                file_list: list[Path] = file_search(path, quiet)
                 for file_path in file_list:
-                    rename_file(file_path, dry_run, use_alternatives, max_bytes)
+                    rename_file(file_path, dry_run, use_alternatives, max_bytes, quiet)
             else:
                 if rename_dirs:
-                    path = rename_directory(Path(path), dry_run, use_alternatives, max_bytes)
+                    path = rename_directory(Path(path), dry_run, use_alternatives, max_bytes, quiet)
 
                 # Handle files in the directory
                 for item in Path(path).iterdir():
                     if item.is_file():
-                        rename_file(item, dry_run, use_alternatives, max_bytes)
+                        rename_file(item, dry_run, use_alternatives, max_bytes, quiet)
         else:
             sys.exit(f"Error: {path} is not a valid file or directory")
     except Exception as e:

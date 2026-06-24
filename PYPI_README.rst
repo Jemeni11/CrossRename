@@ -73,9 +73,9 @@ Usage
 
 .. code-block:: text
 
-   usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [-a] [--force] [--max-filename-bytes N] [--credits]
+   usage: crossrename [-h] [-p PATH] [-v] [-u] [-r] [-d] [-D] [-a] [--force] [-q] [--credits] [--max-filename-bytes N]
 
-   CrossRename: Harmonize file and directory names for Linux, Windows and macOS.
+   Harmonize file and directory names for Linux, Windows and macOS.
 
    options:
      -h, --help                  show this help message and exit
@@ -87,8 +87,9 @@ Usage
      -D, --rename-directories    Also rename directories to be cross-platform compatible. Use with caution!
      -a, --use-alternatives      Replace forbidden characters with Unicode lookalikes instead of removing them. May cause display issues on some systems.
      --force                     Skip safety prompts (useful for automated scripts)
-     --max-filename-bytes N      Maximum filename length in bytes (default: 255, valid range: 4-255).
+     -q, --quiet                 Suppress 'No change needed' and other informational messages. Only shows files that are actually renamed, plus warnings and errors.
      --credits                   Show credits and support information
+     --max-filename-bytes N      Maximum filename length in bytes (default: 255, valid range: 16-255). Filenames exceeding this limit will be truncated. The default of 255 bytes ensures compatibility with Linux filesystems (ext4, btrfs). Multi-byte characters (CJK, Cyrillic, emoji) consume more bytes per character.
 
    Made with <3 by Emmanuel Jemeni | Send Feedback: https://tally.so/r/7Rjpgz?project=CrossRename
 
@@ -156,6 +157,13 @@ Limit filename length for Linux filesystems (useful for CJK or emoji-heavy filen
 .. code-block:: bash
 
    crossrename -p /path/to/directory -r --max-filename-bytes 255
+
+Suppress informational messages to see only files that will be renamed:
+
+.. code-block:: bash
+
+   crossrename -p /path/to/directory -r -d -q
+   # Only shows [Dry-run] Would rename: ... lines and skips "No change needed" noise
 
 `back to introduction  <introduction_>`__
 
