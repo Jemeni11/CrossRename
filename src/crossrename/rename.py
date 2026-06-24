@@ -79,6 +79,13 @@ def sanitize_filename(filename: str, use_alternatives: bool = False, max_bytes: 
     if len(sanitized.encode("utf-8")) > max_bytes:
         ext = get_extension(sanitized)
         ext_bytes = len(ext.encode("utf-8"))
+
+        # Extension alone exceeds the byte limit, then the stem is unsalvageable.
+        # Return extension as-is; the limit is best-effort when the extension
+        # itself is too large to fit.
+        if ext_bytes >= max_bytes:
+            return ext
+
         name = sanitized[: -len(ext)] if ext else sanitized
         # Remove characters from the end until the total fits within the byte limit
         while len(name.encode("utf-8")) + ext_bytes > max_bytes and name:
