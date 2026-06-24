@@ -1,7 +1,7 @@
 # CrossRename development tasks
 # All commands use `uv run`
 
-.PHONY: help test lint format typecheck check clean
+.PHONY: help test lint format typecheck check clean publish
 
 # Default target
 help:
@@ -14,6 +14,7 @@ help:
 	@echo "  make check      Run lint + typecheck (CI pipeline)"
 	@echo "  make all        Run format + lint + typecheck + test"
 	@echo "  make clean      Remove build artifacts and caches"
+	@echo "  make publish    Push to PyPI"
 
 # ── Test ─────────────────────────────────────────────────────────────
 
@@ -58,3 +59,9 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete 2>/dev/null || true
 	@echo "✓ Clean"
+
+# ── Publish ───────────────────────────────────────────────────────────
+
+publish: clean
+	uv build
+	uvx twine check dist/* && uvx twine upload dist/*
