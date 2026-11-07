@@ -7,6 +7,7 @@
 help:
 	@echo "CrossRename dev tasks:"
 	@echo ""
+	@echo "  make dev        Install the package in editable mode"
 	@echo "  make test       Run the test suite"
 	@echo "  make lint       Lint with ruff"
 	@echo "  make format     Format code with ruff"
@@ -15,6 +16,11 @@ help:
 	@echo "  make all        Run format + lint + typecheck + test"
 	@echo "  make clean      Remove build artifacts and caches"
 	@echo "  make publish    Push to PyPI"
+
+# ── Dev ─────────────────────────────────────────────────────────────
+
+dev:
+	uv tool install --editable .
 
 # ── Test ─────────────────────────────────────────────────────────────
 
